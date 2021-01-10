@@ -4,7 +4,7 @@
  * @date    8/01/2021
  * @brief   Funcion principal main
  * @details
- *			v0.1 todo dato enviado por puerto COM es contestado en forma de ECO
+ *			v0.1 todo dato recibido por puerto COM es contestado en forma de ECO
  *
  *
  */
