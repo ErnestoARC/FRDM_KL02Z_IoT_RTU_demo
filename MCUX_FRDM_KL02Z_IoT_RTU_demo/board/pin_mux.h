@@ -52,6 +52,54 @@ void BOARD_InitBootPins(void);
  */
 void BOARD_InitPins(void);
 
+/*! @name PORTB10 (number 13), J7[1]/LEDRGB_BLUE/ADC0_SE9
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define LED_LED_BLUE_FGPIO FGPIOB              /*!<@brief FGPIO peripheral base pointer */
+#define LED_LED_BLUE_GPIO GPIOB                /*!<@brief GPIO peripheral base pointer */
+#define LED_LED_BLUE_GPIO_PIN_MASK (1U << 10U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define LED_LED_BLUE_PORT PORTB                /*!<@brief PORT peripheral base pointer */
+#define LED_LED_BLUE_PIN 10U                   /*!<@brief PORT pin number */
+#define LED_LED_BLUE_PIN_MASK (1U << 10U)      /*!<@brief PORT pin mask */
+                                               /* @} */
+
+/*! @name PORTB7 (number 2), J8[8]/LEDRGB_GREEN
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define LED_LED_GREEN_FGPIO FGPIOB             /*!<@brief FGPIO peripheral base pointer */
+#define LED_LED_GREEN_GPIO GPIOB               /*!<@brief GPIO peripheral base pointer */
+#define LED_LED_GREEN_GPIO_PIN_MASK (1U << 7U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define LED_LED_GREEN_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define LED_LED_GREEN_PIN 7U                   /*!<@brief PORT pin number */
+#define LED_LED_GREEN_PIN_MASK (1U << 7U)      /*!<@brief PORT pin mask */
+                                               /* @} */
+
+/*! @name PORTB6 (number 1), J8[7]/LEDRGB_RED/LPTMR0_ALT3
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define LED_LED_RED_FGPIO FGPIOB             /*!<@brief FGPIO peripheral base pointer */
+#define LED_LED_RED_GPIO GPIOB               /*!<@brief GPIO peripheral base pointer */
+#define LED_LED_RED_GPIO_PIN_MASK (1U << 6U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define LED_LED_RED_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define LED_LED_RED_PIN 6U                   /*!<@brief PORT pin number */
+#define LED_LED_RED_PIN_MASK (1U << 6U)      /*!<@brief PORT pin mask */
+                                             /* @} */
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void LED_InitPins(void);
+
 #if defined(__cplusplus)
 }
 #endif

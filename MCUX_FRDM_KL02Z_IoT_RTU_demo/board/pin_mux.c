@@ -19,6 +19,7 @@ board: FRDM-KL02Z
 
 #include "fsl_common.h"
 #include "fsl_port.h"
+#include "fsl_gpio.h"
 #include "pin_mux.h"
 
 /* FUNCTION ************************************************************************************************************
@@ -30,6 +31,7 @@ board: FRDM-KL02Z
 void BOARD_InitBootPins(void)
 {
     BOARD_InitPins();
+    LED_InitPins();
 }
 
 /* clang-format off */
@@ -70,6 +72,61 @@ void BOARD_InitPins(void)
 
                   /* UART0 receive data source select: UART0_RX pin. */
                   | SIM_SOPT5_UART0RXSRC(SOPT5_UART0RXSRC_UART_RX));
+}
+
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+LED_InitPins:
+- options: {callFromInitBoot: 'true', prefix: LED_, coreID: core0, enableClock: 'true'}
+- pin_list:
+  - {pin_num: '13', peripheral: GPIOB, signal: 'GPIO, 10', pin_signal: ADC0_SE9/PTB10/TPM0_CH1, direction: OUTPUT, gpio_init_state: 'true'}
+  - {pin_num: '2', peripheral: GPIOB, signal: 'GPIO, 7', pin_signal: PTB7/IRQ_3/TPM1_CH0, direction: OUTPUT, gpio_init_state: 'true'}
+  - {pin_num: '1', peripheral: GPIOB, signal: 'GPIO, 6', pin_signal: PTB6/IRQ_2/LPTMR0_ALT3/TPM1_CH1/TPM_CLKIN1, direction: OUTPUT, gpio_init_state: 'true'}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : LED_InitPins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+void LED_InitPins(void)
+{
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+
+    gpio_pin_config_t LED_RED_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 1U
+    };
+    /* Initialize GPIO functionality on pin PTB6 (pin 1)  */
+    GPIO_PinInit(LED_LED_RED_GPIO, LED_LED_RED_PIN, &LED_RED_config);
+
+    gpio_pin_config_t LED_GREEN_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 1U
+    };
+    /* Initialize GPIO functionality on pin PTB7 (pin 2)  */
+    GPIO_PinInit(LED_LED_GREEN_GPIO, LED_LED_GREEN_PIN, &LED_GREEN_config);
+
+    gpio_pin_config_t LED_BLUE_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 1U
+    };
+    /* Initialize GPIO functionality on pin PTB10 (pin 13)  */
+    GPIO_PinInit(LED_LED_BLUE_GPIO, LED_LED_BLUE_PIN, &LED_BLUE_config);
+
+    /* PORTB10 (pin 13) is configured as PTB10 */
+    PORT_SetPinMux(LED_LED_BLUE_PORT, LED_LED_BLUE_PIN, kPORT_MuxAsGpio);
+
+    /* PORTB6 (pin 1) is configured as PTB6 */
+    PORT_SetPinMux(LED_LED_RED_PORT, LED_LED_RED_PIN, kPORT_MuxAsGpio);
+
+    /* PORTB7 (pin 2) is configured as PTB7 */
+    PORT_SetPinMux(LED_LED_GREEN_PORT, LED_LED_GREEN_PIN, kPORT_MuxAsGpio);
 }
 /***********************************************************************************************************************
  * EOF

@@ -18,8 +18,10 @@
 #include "clock_config.h"
 #include "MKL02Z4.h"
 #include "fsl_debug_console.h"
+#include "fsl_gpio.h"
 
 #include "sdk_hal_uart0.h"
+#include "sdk_hal_gpio.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -60,6 +62,26 @@ int main(void) {
     		status=uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
     		if(status==kStatus_Success){
     			printf("dato:%c\r\n",nuevo_byte_uart);
+    			switch (nuevo_byte_uart) {
+				case 'a':
+				case 'A':
+					gpioPutToggle(KPTB10);
+					break;
+
+				case 'v':
+					gpioPutHigh(KPTB7);
+					break;
+				case 'V':
+					gpioPutLow(KPTB7);
+					break;
+
+				case 'r':
+					gpioPutValue(KPTB6,1);
+					break;
+				case 'R':
+					gpioPutValue(KPTB6,0);
+					break;
+				}
     		}else{
     			printf("error\r\n");
     		}
