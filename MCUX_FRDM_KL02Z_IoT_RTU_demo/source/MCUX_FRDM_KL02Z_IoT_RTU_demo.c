@@ -4,7 +4,14 @@
  * @date    8/01/2021
  * @brief   Funcion principal main
  * @details
- *			v0.1 todo dato recibido por puerto COM es contestado en forma de ECO
+ *			v0.1 dato recibido por puerto COM es contestado en forma de ECO
+ *			v0.2 dato recibido por puerto COM realiza operaciones especiales
+ *				A/a=invierte estado de LED conectado en PTB10
+ *				v=apaga LED conectado en PTB7
+ *				V=enciende LED conectado en PTB7
+ *				r=apaga LED conectado en PTB6
+ *				R=enciende LED conectado en PTB6
+ *				M=detecta acelerometro MM8460 en bus I2C0
  *
  *
  */
