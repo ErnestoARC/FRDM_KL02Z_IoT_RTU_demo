@@ -32,8 +32,8 @@ void BOARD_InitBootPins(void)
 {
     BOARD_InitPins();
     LED_InitPins();
-    I2C();
-    MMA8451();
+    I2C_InitPins();
+    MMA8451_InitPins();
 }
 
 /* clang-format off */
@@ -134,7 +134,7 @@ void LED_InitPins(void)
 /* clang-format off */
 /*
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-I2C:
+I2C_InitPins:
 - options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
 - pin_list:
   - {pin_num: '23', peripheral: I2C0, signal: SCL, pin_signal: PTB3/IRQ_10/I2C0_SCL/UART0_TX}
@@ -145,26 +145,26 @@ I2C:
 
 /* FUNCTION ************************************************************************************************************
  *
- * Function Name : I2C
+ * Function Name : I2C_InitPins
  * Description   : Configures pin routing and optionally pin electrical features.
  *
  * END ****************************************************************************************************************/
-void I2C(void)
+void I2C_InitPins(void)
 {
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
     /* PORTB3 (pin 23) is configured as I2C0_SCL */
-    PORT_SetPinMux(I2C_ACCEL_SCL_PORT, I2C_ACCEL_SCL_PIN, kPORT_MuxAlt2);
+    PORT_SetPinMux(I2C_INITPINS_ACCEL_SCL_PORT, I2C_INITPINS_ACCEL_SCL_PIN, kPORT_MuxAlt2);
 
     /* PORTB4 (pin 24) is configured as I2C0_SDA */
-    PORT_SetPinMux(I2C_ACCEL_SDA_PORT, I2C_ACCEL_SDA_PIN, kPORT_MuxAlt2);
+    PORT_SetPinMux(I2C_INITPINS_ACCEL_SDA_PORT, I2C_INITPINS_ACCEL_SDA_PIN, kPORT_MuxAlt2);
 }
 
 /* clang-format off */
 /*
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-MMA8451:
+MMA8451_InitPins:
 - options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
 - pin_list:
   - {pin_num: '21', peripheral: GPIOA, signal: 'GPIO, 10', pin_signal: PTA10/IRQ_8, direction: INPUT, pull_select: up, pull_enable: enable}
@@ -174,11 +174,11 @@ MMA8451:
 
 /* FUNCTION ************************************************************************************************************
  *
- * Function Name : MMA8451
+ * Function Name : MMA8451_InitPins
  * Description   : Configures pin routing and optionally pin electrical features.
  *
  * END ****************************************************************************************************************/
-void MMA8451(void)
+void MMA8451_InitPins(void)
 {
     /* Port A Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortA);
@@ -188,7 +188,7 @@ void MMA8451(void)
         .outputLogic = 0U
     };
     /* Initialize GPIO functionality on pin PTA10 (pin 21)  */
-    GPIO_PinInit(MMA8451_ACCEL_IRQ_8_GPIO, MMA8451_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8_config);
+    GPIO_PinInit(MMA8451_INITPINS_ACCEL_IRQ_8_GPIO, MMA8451_INITPINS_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8_config);
 
     const port_pin_config_t ACCEL_IRQ_8 = {/* Internal pull-up resistor is enabled */
                                            kPORT_PullUp,
@@ -199,7 +199,7 @@ void MMA8451(void)
                                            /* Pin is configured as PTA10 */
                                            kPORT_MuxAsGpio};
     /* PORTA10 (pin 21) is configured as PTA10 */
-    PORT_SetPinConfig(MMA8451_ACCEL_IRQ_8_PORT, MMA8451_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8);
+    PORT_SetPinConfig(MMA8451_INITPINS_ACCEL_IRQ_8_PORT, MMA8451_INITPINS_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8);
 }
 /***********************************************************************************************************************
  * EOF

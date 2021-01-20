@@ -67,3 +67,19 @@ status_t i2c0MasterReadByte(uint8_t *data, uint8_t bytes_to_read, uint8_t device
     return(status);
 }
 /*--------------------------------------------*/
+status_t i2c0MasterWriteByte(uint8_t *data, uint8_t bytes_to_write, uint8_t device_address, int8_t memory_address) {
+	i2c_master_transfer_t masterXfer;
+	status_t status;
+
+    masterXfer.slaveAddress = device_address;
+    masterXfer.direction = kI2C_Write;
+    masterXfer.subaddress = (uint32_t)memory_address;
+    masterXfer.subaddressSize = 1;
+    masterXfer.data = data;
+    masterXfer.dataSize = bytes_to_write;
+    masterXfer.flags = kI2C_TransferDefaultFlag;
+
+    status=I2C_MasterTransferBlocking(I2C0, &masterXfer);
+
+    return(status);
+}
