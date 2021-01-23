@@ -71,25 +71,36 @@ int main(void) {
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
     BOARD_InitDebugConsole();
 #endif
+    //inicializa puerto UART0 y solo avanza si es exitoso el proceso
+    if(uart0Inicializar(115200)!=kStatus_Success){	//115200bps
+    	return 0 ;
+    }
 
-    (void)uart0Inicializar(115200);	//115200bps
-    (void)i2c0MasterInit(100000);	//100kbps
+    //inicializa puerto I2C0 y solo avanza si es exitoso el proceso
+    if(i2c0MasterInit(100000)!=kStatus_Success){	//100kbps
+    	return 0 ;
+    }
 
+    //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
     }
 
-
+    //LLamado a funcion que identifica modem conectado a puerto UART0
 	if(detectarModemQuectel()==kStatus_Success){
 		encenderLedAzul();
 	}else{
 		apagarLedAzul();
 	}
 
-
+	//Ciclo infinito encendiendo y apagando led verde
+	//inicia el SUPERLOOP
     while(1) {
     	waytTime();
+    	//funciondLeerBoton();
+    	//funcionParaEnviarMensajeDeTexto();
     	toggleLedVerde();
     }
+
     return 0 ;
 }
