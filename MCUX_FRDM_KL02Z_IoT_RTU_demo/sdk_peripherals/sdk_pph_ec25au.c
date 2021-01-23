@@ -34,9 +34,12 @@ void borrarBufferQuectel(void);
 uint8_t buffer_rx_quectel[100];
 uint8_t index_buffer_rx_quectel=0;
 
+//Listado de comando AT disponibles para ser enviados al modem Quectel
 const uint8_t *comando_at_quectel[] = {
 	"AT",
 	"ATI",
+	"AT+CPIN?",
+	"AT+CREG?",
 	};
 
 const uint8_t  *repuesta_at[]={
@@ -52,9 +55,13 @@ void borrarBufferQuectel(void){
 	uint8_t i;
 	uint8_t bytes_en_buffer = sizeof(buffer_rx_quectel);
 
+	//LLenar de ceros buffer que va a recibir datos provenientes del modem
 	for(i=0;i<bytes_en_buffer;i++){
 		buffer_rx_quectel[i]=0;
 	}
+
+	//borra apuntador de posicion donde se va a almacenar el proximo dato
+	//Reset al apuntador
 	index_buffer_rx_quectel=0;
 }
 
@@ -76,8 +83,13 @@ status_t detectarModemQuectel(void){
 
 	borrarBufferQuectel();	//limpia buffer para recibir datos de quectel
 
-	//envia comando AT a modem quectel
+	//envia comando ATI a modem quectel
 	printf("%s\r\n",comando_at_quectel[kATI]);
+
+	//Recibir la respuesta es automatica por IRq de UART0
+
+	//peeeero Sacar los datos del buffer circular y llevarlos al buffer del modem
+	// es tarea del proceso interno
 
 	do {
 		waytTimeModem();
