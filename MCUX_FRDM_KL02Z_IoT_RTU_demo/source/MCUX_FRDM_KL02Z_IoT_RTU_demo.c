@@ -32,6 +32,7 @@
 
 #include "sdk_mdlw_leds.h"
 #include "sdk_pph_mma8451Q.h"
+#include "sdk_pph_ec25au.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -48,16 +49,24 @@
  * Local vars
  ******************************************************************************/
 
+uint8_t mensaje_de_texto[]="Hola mi hermosa, me perdonas? :) desde EC25";
+
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
+void waytTime(void) {
+	uint32_t tiempo = 0xFFFFF;
+	do {
+		tiempo--;
+	} while (tiempo != 0x0000);
+}
+
+
 /*
  * @brief   Application entry point.
  */
 int main(void) {
-	status_t status;
-	uint8_t nuevo_byte_uart;
-	mma8451_data_t	mma8451_data;
+	uint8_t estado_actual_ec25;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -65,62 +74,59 @@ int main(void) {
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
     BOARD_InitDebugConsole();
 #endif
+    //inicializa puerto UART0 y solo avanza si es exitoso el proceso
+    if(uart0Inicializar(115200)!=kStatus_Success){	//115200bps
+    	return 0 ;
+    }
 
-    (void)uart0Inicializar(115200);	//115200bps
-    (void)i2c0MasterInit(100000);	//100kbps
+    //inicializa puerto I2C0 y solo avanza si es exitoso el proceso
+    if(i2c0MasterInit(100000)!=kStatus_Success){	//100kbps
+    	return 0 ;
+    }
+
+    //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
-    	printf("MMA8451Q detected!\r\n");
-    }else{
-    	printf("MMA8451Q error\r\n");
     }
 
+//    //LLamado a funcion que identifica modem conectado a puerto UART0
+//	if(detectarModemQuectel()==kStatus_Success){
+//		encenderLedAzul();
+//	}else{
+//		apagarLedAzul();
+//	}
 
+    //inicializa todas las funciones necesarias para trabajar con el modem EC25
+    ec25Inicializacion();
+    ec25EnviarMensajeDeTexto(&mensaje_de_texto[0], sizeof(mensaje_de_texto));
+
+	//Ciclo infinito encendiendo y apagando led verde
+	//inicia el SUPERLOOP
     while(1) {
-    	if(uart0CuantosDatosHayEnBuffer()>0){
-    		status=uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
-    		if(status==kStatus_Success){
-    			printf("\r\nkey:%c\r\n",nuevo_byte_uart);
-    			switch (nuevo_byte_uart) {
-				case 'a':
-				case 'A':
-					toggleLedAzul();
-					break;
+    	waytTime();
 
-				case 'v':
-					apagarLedVerde();
-					break;
-				case 'V':
-					encenderLedVerde();
-					break;
+    	estado_actual_ec25=ec25Polling();
 
-				case 'r':
-					apagarLedRojo();
-					break;
+    	switch(estado_actual_ec25){
+    	case kFSM_RESULTADO_ERROR:
+    		toggleLedRojo();
+    		apagarLedVerde();
+    		apagarLedAzul();
+    		break;
 
-				case 'R':
-					encenderLedRojo();
-					break;
+    	case kFSM_RESULTADO_EXITOSO:
+    		toggleLedVerde();
+    		apagarLedAzul();
+    		apagarLedRojo();
+    		break;
 
-				case 'X':
-					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
-						printf("x:0x%04X\r\n",mma8451_data.x_value);
-						printf("y:0x%04X\r\n",mma8451_data.y_value);
-						printf("z:0x%04X\r\n",mma8451_data.z_value);
-					}else{
-						printf("MMA8451Q error\r\n");
-					}
-					break;
-
-				case 'P':
-					i2c0MasterReadByte(&nuevo_byte_uart, 1, 0x1D, 0x09);
-					printf("REG_F_SETUP:%02X\r\n",nuevo_byte_uart);
-					break;
-				}
-    		}else{
-    			printf("error\r\n");
-    		}
+    	default:
+    		toggleLedAzul();
+    		apagarLedVerde();
+    		apagarLedRojo();
+    		break;
     	}
     }
+
     return 0 ;
 }
