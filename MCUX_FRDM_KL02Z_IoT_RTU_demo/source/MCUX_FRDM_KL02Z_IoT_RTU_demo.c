@@ -49,6 +49,7 @@
  * Local vars
  ******************************************************************************/
 
+uint8_t mensaje_de_texto[]="Hola mi hermosa, me perdonas? :) desde EC25";
 
 /*******************************************************************************
  * Private Source Code
@@ -65,6 +66,8 @@ void waytTime(void) {
  * @brief   Application entry point.
  */
 int main(void) {
+	uint8_t estado_actual_ec25;
+
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
@@ -86,20 +89,43 @@ int main(void) {
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
     }
 
-    //LLamado a funcion que identifica modem conectado a puerto UART0
-	if(detectarModemQuectel()==kStatus_Success){
-		encenderLedAzul();
-	}else{
-		apagarLedAzul();
-	}
+//    //LLamado a funcion que identifica modem conectado a puerto UART0
+//	if(detectarModemQuectel()==kStatus_Success){
+//		encenderLedAzul();
+//	}else{
+//		apagarLedAzul();
+//	}
+
+    //inicializa todas las funciones necesarias para trabajar con el modem EC25
+    ec25Inicializacion();
+    ec25EnviarMensajeDeTexto(&mensaje_de_texto[0], sizeof(mensaje_de_texto));
 
 	//Ciclo infinito encendiendo y apagando led verde
 	//inicia el SUPERLOOP
     while(1) {
     	waytTime();
-    	//funciondLeerBoton();
-    	//funcionParaEnviarMensajeDeTexto();
-    	toggleLedVerde();
+
+    	estado_actual_ec25=ec25Polling();
+
+    	switch(estado_actual_ec25){
+    	case kFSM_RESULTADO_ERROR:
+    		toggleLedRojo();
+    		apagarLedVerde();
+    		apagarLedAzul();
+    		break;
+
+    	case kFSM_RESULTADO_EXITOSO:
+    		toggleLedVerde();
+    		apagarLedAzul();
+    		apagarLedRojo();
+    		break;
+
+    	default:
+    		toggleLedAzul();
+    		apagarLedVerde();
+    		apagarLedRojo();
+    		break;
+    	}
     }
 
     return 0 ;
