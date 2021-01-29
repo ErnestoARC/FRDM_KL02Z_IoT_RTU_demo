@@ -49,7 +49,7 @@
  * Local vars
  ******************************************************************************/
 
-uint8_t mensaje_de_texto[]="Hola mi hermosa, me perdonas? :) desde EC25";
+uint8_t mensaje_de_texto[]="mensaje de prueba desde EC25";
 
 /*******************************************************************************
  * Private Source Code
@@ -88,13 +88,6 @@ int main(void) {
     if (mma8451QWhoAmI() == kStatus_Success){
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
     }
-
-//    //LLamado a funcion que identifica modem conectado a puerto UART0
-//	if(detectarModemQuectel()==kStatus_Success){
-//		encenderLedAzul();
-//	}else{
-//		apagarLedAzul();
-//	}
 
     //inicializa todas las funciones necesarias para trabajar con el modem EC25
     ec25Inicializacion();

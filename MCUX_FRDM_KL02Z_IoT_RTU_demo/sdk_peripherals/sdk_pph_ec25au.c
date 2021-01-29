@@ -398,9 +398,3 @@ status_t detectarModemQuectel(void){
 		return(kStatus_Fail);
 	}
 }
-
-
-
-status_t fsmModemQuectelEC25(void){
-
-}
