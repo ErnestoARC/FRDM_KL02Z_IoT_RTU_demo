@@ -49,7 +49,7 @@
  * Local vars
  ******************************************************************************/
 
-uint8_t mensaje_de_texto[]="mensaje de prueba desde EC25";
+uint8_t mensaje_de_texto[]="mensaje de prueba desde EC25 como un mensaje x";
 
 /*******************************************************************************
  * Private Source Code
@@ -96,9 +96,10 @@ int main(void) {
 	//Ciclo infinito encendiendo y apagando led verde
 	//inicia el SUPERLOOP
     while(1) {
-    	waytTime();
+    	waytTime();		//base de tiempo fija aproximadamente 200ms
 
-    	estado_actual_ec25=ec25Polling();
+		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
+											//retorna el estado actual de la FSM
 
     	switch(estado_actual_ec25){
     	case kFSM_RESULTADO_ERROR:

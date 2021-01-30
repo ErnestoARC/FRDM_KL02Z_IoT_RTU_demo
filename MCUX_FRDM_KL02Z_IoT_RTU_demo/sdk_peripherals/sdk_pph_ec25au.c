@@ -29,7 +29,7 @@ enum _ec25_lista_ordendes{
 };
 
 #define EC25_BYTES_EN_BUFFER	100
-#define EC25_TIEMPO_MAXIMO_ESPERA	1
+#define EC25_TIEMPO_MAXIMO_ESPERA	3
 /*******************************************************************************
  * Private Prototypes
  ******************************************************************************/
@@ -60,8 +60,9 @@ const char *ec25_comandos_at[] = {
 	"AT+CPIN?",		//consulta estado de la simcard
 	"AT+CREG?",		//consulta estado de la red celular y tecnología usada en red celular
 	"AT+CMGF=1",	//asigna modo texto para enviar mensajes
-	"AT+CMGS=\"300xxxxxxx\"",//envia mensaje de texto a numero definido
+	"AT+CMGS=\"3003564960\"",//envia mensaje de texto a numero definido
 	"Mensaje", //MENSAJE & CTRL+Z
+	"AT+CSQ",
 	};
 
 //Lista de respuestas a cada comando AT
@@ -73,6 +74,7 @@ const char  *ec25_repuestas_at[]={
 		"OK",		//AT+CMGF=1
 		">",		//AT+CMGS
 		"OK",		//MENSAJE & CTRL+Z
+		"+CSQ:"		//AT+CSQ
 };
 
 
@@ -204,6 +206,15 @@ uint8_t ec25Polling(void){
 		ec25_timeout = 0;	//reset a contador de tiempo
 		break;
 
+	case kFSM_ENVIANDO_CSQ:
+		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
+		printf("%s\r\n", ec25_comandos_at[kAT_CSQ]);	//Envia comando AT+CMGS="3003564960"
+
+		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
+		ec25_fsm.actual = kFSM_ESPERANDO_RESPUESTA;	//avanza a esperar respuesta del modem
+		ec25_timeout = 0;	//reset a contador de tiempo
+		break;
+
 	case kFSM_RESULTADO_ERROR:
 		break;
 
@@ -232,8 +243,7 @@ uint8_t ec25Polling(void){
 			switch(ec25_fsm.anterior){
 			case kFSM_ENVIANDO_AT:
 				//Busca palabra EC25 en buffer rx de quectel
-				puntero_ok = (uint8_t*) (strstr((char*) (&ec25_buffer_rx[0]),
-						(char*) (ec25_repuestas_at[kAT])));
+				puntero_ok = (uint8_t*) (strstr((char*) (&ec25_buffer_rx[0]),(char*) (ec25_repuestas_at[kAT])));
 
 				if(puntero_ok!=0x00){
 					//Si la respuesta es encontrada, se avanza al siguiente estado
@@ -338,6 +348,54 @@ uint8_t ec25Polling(void){
 					ec25_fsm.actual = kFSM_RESULTADO_ERROR;		//se queda en estado de error
 				}
 				break;
+
+			case kFSM_ENVIANDO_CSQ:
+				//Busca palabra EC25 en buffer rx de quectel
+				puntero_ok = (uint8_t*) (strstr((char*) (&ec25_buffer_rx[0]),
+						(char*) (ec25_repuestas_at[kAT_CSQ])));
+
+				if(puntero_ok!=0x00){
+					float ec25_signal_strength;
+					uint8_t unidad,decena,centena;
+
+					puntero_ok+=5;//avanza 5 posiciones en el vector del mensaje
+
+					//la informacion que hay en la posicion del puntero de memoria es un ascii entre 0 y 9
+					//entonces es un numero valido
+					if((*puntero_ok>=0x30)&&(*puntero_ok<=0x39)){
+						centena=(*puntero_ok)-0x30;
+					}else{
+						centena=0;
+					}
+
+					puntero_ok++;
+					if((*puntero_ok>=0x30)&&(*puntero_ok<=0x39)){
+						decena=(*puntero_ok)-0x30;
+					}else{
+						decena=0;
+					}
+
+					puntero_ok++;
+					if((*puntero_ok>=0x30)&&(*puntero_ok<=0x39)){
+						unidad=(*puntero_ok)-0x30;
+					}else{
+						unidad=0;
+					}
+
+					//completa parte entera del dato recibido
+					ec25_signal_strength=(float)(centena*100);
+					ec25_signal_strength+=(float)(decena*10);
+					ec25_signal_strength+=(float)(unidad);
+
+					//Si la respuesta es encontrada, se avanza al siguiente estado
+					ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
+					ec25_fsm.actual = kFSM_ENVIANDO_MENSAJE_TXT;		//avanza a enviar nuevo comando al modem
+				}else{
+					//Si la respuesta es incorrecta, se queda en estado de error
+					//No se cambia (ec25_fsm.anterior) para mantener en que comando AT fue que se generó error
+					ec25_fsm.actual = kFSM_RESULTADO_ERROR;		//se queda en estado de error
+				}
+			break;
 
 			default:
 				//para evitar bloqueos, se reinicia la fsm en caso de entrar a un estado ilegal

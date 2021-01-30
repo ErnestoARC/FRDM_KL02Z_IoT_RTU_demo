@@ -32,6 +32,7 @@ enum _ec25_lista_comandos_at {
 	kAT_CMGF_1,
 	kAT_CMGS,
 	kAT_TEXT_MSG_END,
+	kAT_CSQ,
 };
 
 enum _fsm_ec25_state{
@@ -45,7 +46,8 @@ enum _fsm_ec25_state{
 	kFSM_ENVIANDO_MENSAJE_TXT,
 	kFSM_ESPERANDO_RESPUESTA,
 	kFSM_RESULTADO_ERROR,
-	kFSM_RESULTADO_EXITOSO
+	kFSM_RESULTADO_EXITOSO,
+	kFSM_ENVIANDO_CSQ,
 };
 /*******************************************************************************
  * External vars
