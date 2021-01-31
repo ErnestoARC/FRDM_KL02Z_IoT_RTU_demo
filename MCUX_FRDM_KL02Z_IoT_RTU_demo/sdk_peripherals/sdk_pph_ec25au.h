@@ -48,6 +48,7 @@ enum _fsm_ec25_state{
 	kFSM_RESULTADO_ERROR,
 	kFSM_RESULTADO_EXITOSO,
 	kFSM_ENVIANDO_CSQ,
+	kFSM_PROCESANDO_RESPUESTA,
 };
 /*******************************************************************************
  * External vars
