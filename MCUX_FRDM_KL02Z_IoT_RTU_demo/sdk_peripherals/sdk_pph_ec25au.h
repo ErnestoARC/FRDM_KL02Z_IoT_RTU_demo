@@ -49,7 +49,11 @@ enum _fsm_ec25_state{
 	kFSM_RESULTADO_EXITOSO,
 	kFSM_ENVIANDO_CSQ,
 	kFSM_PROCESANDO_RESPUESTA,
+	kFSM_RESULTADO_ERROR_RSSI,
 };
+
+#define EC25_TIEMPO_MAXIMO_ESPERA	3		//Tiempo maximo que espera modem por respuesta
+#define EC25_RSSI_MINIMO_ACEPTADO	20		//RSSI minimo aceptado segun tabla de fabricante
 /*******************************************************************************
  * External vars
  ******************************************************************************/

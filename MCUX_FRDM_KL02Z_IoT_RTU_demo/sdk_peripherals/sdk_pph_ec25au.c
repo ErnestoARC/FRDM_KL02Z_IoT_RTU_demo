@@ -10,14 +10,13 @@
  * Includes
  ******************************************************************************/
 #include "stdio.h"
+#include "stdlib.h"
 #include "sdk_pph_ec25au.h"
 #include "sdk_mdlw_leds.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
-
 typedef struct _estado_fsm{
 	uint8_t anterior;
 	uint8_t actual;
@@ -29,7 +28,6 @@ enum _ec25_lista_ordendes{
 };
 
 #define EC25_BYTES_EN_BUFFER	100
-#define EC25_TIEMPO_MAXIMO_ESPERA	3
 /*******************************************************************************
  * Private Prototypes
  ******************************************************************************/
@@ -61,8 +59,8 @@ const char *ec25_comandos_at[] = {
 	"AT+CREG?",		//consulta estado de la red celular y tecnología usada en red celular
 	"AT+CMGF=1",	//asigna modo texto para enviar mensajes
 	"AT+CMGS=\"3003564960\"",//envia mensaje de texto a numero definido
-	"Mensaje", //MENSAJE & CTRL+Z
-	"AT+CSQ",
+	"Mensaje", 		//MENSAJE & CTRL+Z
+	"AT+CSQ",		//consulta calidad de la señal RSSI
 	};
 
 //Lista de respuestas a cada comando AT
@@ -206,7 +204,24 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_CSQ])));
 
 		if(puntero_ok!=0x00){
-			resultado_procesamiento=kStatus_Success;
+			//la respuesta a AT+CSQ incluye dos parametros RSSI,BER
+			//el valor de interes para la aplicación es RSSI
+			char string_data[4];
+			int8_t rssi;	// received signal strength
+			uint8_t i;		//usada para borrar los daot s
+
+			//borra buffer que va a almacenar string
+			for(i=0;i<sizeof(string_data);i++){
+				string_data[i]=0;
+			}
+			memcpy(&string_data[0],puntero_ok+5, 3);	//copia los bytes que corresponden al RSSI (3 digitos)
+			rssi=(int8_t)atoi(&string_data[0]);//convierte string a entero
+
+			if((rssi>EC25_RSSI_MINIMO_ACEPTADO)&&(rssi!=99)){
+				resultado_procesamiento=kStatus_Success;
+			}else{
+				resultado_procesamiento=kStatus_OutOfRange;
+			}
 		}else{
 			resultado_procesamiento=kStatus_Fail;
 		}
@@ -256,6 +271,10 @@ uint8_t ec25Polling(void){
 		//Se queda en este estado y solo se sale cuando se utilice la función ec25Inicializacion();
 		break;
 
+	case kFSM_RESULTADO_ERROR_RSSI:
+		//Se queda en este estado y solo se sale cuando se utilice la función ec25Inicializacion();
+		break;
+
 	case kFSM_ENVIANDO_AT:
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT);	//Envia comando AT
@@ -275,6 +294,14 @@ uint8_t ec25Polling(void){
 	case kFSM_ENVIANDO_CPIN:
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CPIN);	//Envia comando AT+CPIN?
+		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
+		ec25_fsm.actual = kFSM_ESPERANDO_RESPUESTA;	//avanza a esperar respuesta del modem
+		ec25_timeout = 0;	//reset a contador de tiempo
+		break;
+
+	case kFSM_ENVIANDO_CSQ:
+		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
+		ec25EnviarComandoAT(kAT_CSQ);	//Envia comando AT+CSQ
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
 		ec25_fsm.actual = kFSM_ESPERANDO_RESPUESTA;	//avanza a esperar respuesta del modem
 		ec25_timeout = 0;	//reset a contador de tiempo
@@ -311,13 +338,7 @@ uint8_t ec25Polling(void){
 		ec25_timeout = 0;	//reset a contador de tiempo
 		break;
 
-	case kFSM_ENVIANDO_CSQ:
-		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
-		ec25EnviarComandoAT(kAT_CSQ);	//Envia comando AT+CSQ
-		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
-		ec25_fsm.actual = kFSM_ESPERANDO_RESPUESTA;	//avanza a esperar respuesta del modem
-		ec25_timeout = 0;	//reset a contador de tiempo
-		break;
+
 
 	case kFSM_ESPERANDO_RESPUESTA:
 		ec25_timeout++;	//incrementa contador de tiempo
@@ -346,7 +367,8 @@ uint8_t ec25Polling(void){
 		//procesa respuesta dependiendo de cual comando AT se le había enviado al modem
 		resultado = ec25ProcesarRespuestaAT(ec25_fsm.anterior);
 		//Si la respuesta al comando AT es correcta (kStatus_Success), avanza al siguiente resultado
-		if (resultado == kStatus_Success) {
+		switch (resultado) {
+		case kStatus_Success:
 			//el siguiente estado depende del estado anterior
 			switch (ec25_fsm.anterior) {
 			case kFSM_ENVIANDO_AT:
@@ -366,6 +388,11 @@ uint8_t ec25Polling(void){
 
 			case kFSM_ENVIANDO_CREG:
 				ec25_fsm.anterior = ec25_fsm.actual;//almacena el estado actual
+				ec25_fsm.actual = kFSM_ENVIANDO_CSQ;//avanza a enviar nuevo comando al modem
+				break;
+
+			case kFSM_ENVIANDO_CSQ:
+				ec25_fsm.anterior = ec25_fsm.actual;//almacena el resultado actual
 				ec25_fsm.actual = kFSM_ENVIANDO_CMGF;//avanza a enviar nuevo comando al modem
 				break;
 
@@ -376,12 +403,7 @@ uint8_t ec25Polling(void){
 
 			case kFSM_ENVIANDO_CMGS:
 				ec25_fsm.anterior = ec25_fsm.actual;//almacena el estado actual
-				ec25_fsm.actual = kFSM_ENVIANDO_CSQ;//avanza a enviar nuevo comando al modem
-				break;
-
-			case kFSM_ENVIANDO_CSQ:
-				ec25_fsm.anterior = ec25_fsm.actual;//almacena el resultado actual
-				ec25_fsm.actual = kFSM_ENVIANDO_MENSAJE_TXT;//avanza a enviar mensaje de texto al modem
+				ec25_fsm.actual = kFSM_ENVIANDO_MENSAJE_TXT;//avanza a enviar nuevo comando al modem
 				break;
 
 			case kFSM_ENVIANDO_MENSAJE_TXT:
@@ -394,16 +416,19 @@ uint8_t ec25Polling(void){
 				ec25_fsm.actual = kFSM_RESULTADO_ERROR;	//se queda en resultado de error
 				break;
 			}
-		} else {
+			break;
+
+		case kStatus_OutOfRange:
+			//si la respuesta del analisis es fuera de rango, indica que el RSSI no se cumple
+			ec25_fsm.actual = kFSM_RESULTADO_ERROR_RSSI;//se queda en resultado de error
+			break;
+
+		default:
 			//Si la respuesta es incorrecta, se queda en resultado de error
 			//No se cambia (ec25_fsm.anterior) para mantener en que comando AT fue que se generó error
 			ec25_fsm.actual = kFSM_RESULTADO_ERROR;	//se queda en resultado de error
+			break;
 		}
-		break;
-	default:
-		//para evitar bloqueos, marca error de proceso en caso de detectar un estado ilegal
-		ec25_fsm.actual = kFSM_RESULTADO_ERROR;	//se queda en resultado de error
-		break;
 	}
 	return(ec25_fsm.actual);
 }
