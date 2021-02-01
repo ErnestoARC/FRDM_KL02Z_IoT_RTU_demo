@@ -49,7 +49,7 @@
  * Local vars
  ******************************************************************************/
 
-uint8_t mensaje_de_texto[]="mensaje de prueba desde EC25 como un mensaje x";
+uint8_t mensaje_de_texto[]="Hola desde EC25";
 
 /*******************************************************************************
  * Private Source Code
@@ -109,15 +109,21 @@ int main(void) {
     		break;
 
     	case kFSM_RESULTADO_EXITOSO:
+    		apagarLedRojo();
     		toggleLedVerde();
     		apagarLedAzul();
-    		apagarLedRojo();
+    		break;
+
+    	case kFSM_RESULTADO_ERROR_RSSI:
+    		toggleLedRojo();
+    		apagarLedVerde();
+    		toggleLedAzul();
     		break;
 
     	default:
-    		toggleLedAzul();
-    		apagarLedVerde();
     		apagarLedRojo();
+    		apagarLedVerde();
+    		toggleLedAzul();
     		break;
     	}
     }
