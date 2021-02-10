@@ -29,6 +29,7 @@
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
+#include "sdk_hal_adc.h"
 
 #include "sdk_mdlw_leds.h"
 #include "sdk_pph_mma8451Q.h"
@@ -67,6 +68,7 @@ void waytTime(void) {
  */
 int main(void) {
 	uint8_t estado_actual_ec25;
+	uint32_t dato_adc;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -84,6 +86,12 @@ int main(void) {
     	return 0 ;
     }
 
+    //inicializa conversor analogo a Digital
+    if(adcInit()!=kStatus_Success){
+    	return 0 ;
+    }
+
+
     //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
@@ -100,6 +108,8 @@ int main(void) {
 
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
+
+		adcIniciarLectura(11, &dato_adc);//inicia lectura por ADC canal 11 y guarda en variable dato_adc
 
     	switch(estado_actual_ec25){
     	case kFSM_RESULTADO_ERROR:
