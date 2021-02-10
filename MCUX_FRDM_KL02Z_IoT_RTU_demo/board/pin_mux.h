@@ -144,6 +144,21 @@ void I2C_InitPins(void);
  */
 void MMA8451_InitPins(void);
 
+/*! @name PORTB8 (number 11), J10[1]/ADC0_SE11
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define ADC_INITPINS_ADC0_SE11_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define ADC_INITPINS_ADC0_SE11_PIN 8U                   /*!<@brief PORT pin number */
+#define ADC_INITPINS_ADC0_SE11_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
+                                                        /* @} */
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void ADC_InitPins(void);
+
 #if defined(__cplusplus)
 }
 #endif

@@ -13,6 +13,8 @@ package_id: MKL02Z32VFM4
 mcu_data: ksdk2_0
 processor_version: 8.0.1
 board: FRDM-KL02Z
+pin_labels:
+- {pin_num: '11', pin_signal: ADC0_SE11/PTB8, label: 'J10[1]/ADC0_SE11', identifier: ADC0_SE11}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -34,6 +36,7 @@ void BOARD_InitBootPins(void)
     LED_InitPins();
     I2C_InitPins();
     MMA8451_InitPins();
+    ADC_InitPins();
 }
 
 /* clang-format off */
@@ -200,6 +203,32 @@ void MMA8451_InitPins(void)
                                            kPORT_MuxAsGpio};
     /* PORTA10 (pin 21) is configured as PTA10 */
     PORT_SetPinConfig(MMA8451_INITPINS_ACCEL_IRQ_8_PORT, MMA8451_INITPINS_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8);
+}
+
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+ADC_InitPins:
+- options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
+- pin_list:
+  - {pin_num: '11', peripheral: ADC0, signal: 'SE, 14', pin_signal: ADC0_SE11/PTB8}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : ADC_InitPins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+void ADC_InitPins(void)
+{
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+
+    /* PORTB8 (pin 11) is configured as ADC0_SE11 */
+    PORT_SetPinMux(ADC_INITPINS_ADC0_SE11_PORT, ADC_INITPINS_ADC0_SE11_PIN, kPORT_PinDisabledOrAnalog);
 }
 /***********************************************************************************************************************
  * EOF
