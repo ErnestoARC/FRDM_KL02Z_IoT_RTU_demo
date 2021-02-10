@@ -17,7 +17,6 @@
  ******************************************************************************/
 #define DEMO_ADC16_BASE 			ADC0
 #define DEMO_ADC16_CHANNEL_GROUP 	0U
-#define DEMO_ADC16_USER_CHANNEL  	11U /* ADC0_SE11 */
 
 /*******************************************************************************
  * Private Prototypes
@@ -63,10 +62,10 @@ status_t adcInit(void){
 	    return(kStatus_Success);
  }
 
-status_t adcIniciarLectura(uint32_t *resultado_adc) {
+status_t adcIniciarLectura(uint8_t canal_adc, uint32_t *resultado_adc) {
 	adc16_channel_config_t adc16ChannelConfigStruct;
 
-	adc16ChannelConfigStruct.channelNumber = DEMO_ADC16_USER_CHANNEL; //Selecciona canal ADC a utilizar
+	adc16ChannelConfigStruct.channelNumber = canal_adc; //Selecciona canal ADC a utilizar
 	adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = false;//Deshabilita IRQ por ADC
 	ADC16_SetChannelConfig(ADC0, DEMO_ADC16_CHANNEL_GROUP,
 			&adc16ChannelConfigStruct);	//establece canal e inicia lectura ADC

@@ -38,7 +38,7 @@
  ******************************************************************************/
 status_t adcInit(void);
 
-status_t adcIniciarLectura(uint32_t *resultado_adc);
+status_t adcIniciarLectura(uint8_t canal_adc, uint32_t *resultado_adc);
 
 
 /** @} */ // end of ADC group
