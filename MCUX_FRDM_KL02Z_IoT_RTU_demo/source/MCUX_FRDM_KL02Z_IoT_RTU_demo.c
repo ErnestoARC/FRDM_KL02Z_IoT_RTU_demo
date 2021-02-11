@@ -49,9 +49,9 @@
 /*******************************************************************************
  * Local vars
  ******************************************************************************/
-
 uint8_t mensaje_de_texto[]="Hola desde EC25";
-
+uint8_t ec25_detectado=0;
+uint8_t mma8451Q_detectado=0;
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
@@ -87,10 +87,10 @@ int main(void) {
     }
 
     //inicializa conversor analogo a Digital
+    //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
     if(adcInit()!=kStatus_Success){
     	return 0 ;
     }
-
 
     //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
@@ -106,10 +106,10 @@ int main(void) {
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
 
+		adcTomarCaptura(PTB11_ADC0_SE8_CH11, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
+
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
-
-		adcIniciarLectura(11, &dato_adc);//inicia lectura por ADC canal 11 y guarda en variable dato_adc
 
     	switch(estado_actual_ec25){
     	case kFSM_RESULTADO_ERROR:
