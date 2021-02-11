@@ -52,6 +52,8 @@
 uint8_t mensaje_de_texto[]="Hola desde EC25";
 uint8_t ec25_detectado=0;
 uint8_t mma8451Q_detectado=0;
+
+uint8_t adc_base_de_tiempo=0;
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
@@ -73,18 +75,26 @@ int main(void) {
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
+
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
     BOARD_InitDebugConsole();
 #endif
+
+    printf("Inicializa UART0:");
     //inicializa puerto UART0 y solo avanza si es exitoso el proceso
     if(uart0Inicializar(115200)!=kStatus_Success){	//115200bps
+    	printf("Error");
     	return 0 ;
-    }
+    };
+    printf("OK\r\n");
 
+    printf("Inicializa I2C0:");
     //inicializa puerto I2C0 y solo avanza si es exitoso el proceso
     if(i2c0MasterInit(100000)!=kStatus_Success){	//100kbps
+    	printf("Error");
     	return 0 ;
     }
+    printf("OK\r\n");
 
     //inicializa conversor analogo a Digital
     //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
@@ -92,13 +102,19 @@ int main(void) {
     	return 0 ;
     }
 
+    printf("Detectando MMA8451Q:");
+
     //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
+    	printf("OK\r\n");
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
     }
 
+    printf("Inicializa modem EC25\r\n");
     //inicializa todas las funciones necesarias para trabajar con el modem EC25
     ec25Inicializacion();
+
+    printf("Enviando mensaje de texto por modem EC25\r\n");
     ec25EnviarMensajeDeTexto(&mensaje_de_texto[0], sizeof(mensaje_de_texto));
 
 	//Ciclo infinito encendiendo y apagando led verde
@@ -106,7 +122,12 @@ int main(void) {
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
 
-		adcTomarCaptura(PTB11_ADC0_SE8_CH11, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
+    	adc_base_de_tiempo++;//incrementa base de tiempo para tomar una lectura ADC
+    	if(adc_base_de_tiempo>10){	// >10 equivale aproximadamente a 2s
+    		adc_base_de_tiempo=0;	//reinicia contador de tiempo
+    		adcTomarCaptura(PTB11_ADC0_SE8_CH11, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
+    		printf("ADC PTB11:%d\r\n",dato_adc);	//imprime resultado ADC
+    	}
 
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
