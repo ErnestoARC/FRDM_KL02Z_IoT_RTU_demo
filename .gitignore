@@ -12,3 +12,6 @@
 
 # Excluye carpeta html de doxygen
 /MCUX_FRDM_KL02Z_IoT_RTU_demo/doxygen/html/
+
+#Excluye archivo temporal xml
+/MCUX_FRDM_KL02Z_IoT_RTU_demo/.settings/language.settings.xml
