@@ -14,6 +14,7 @@
 #include "sdk_pph_ec25au.h"
 #include "sdk_mdlw_leds.h"
 
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -110,7 +111,9 @@ void waytTimeModem(void) {
 }
 //------------------------------------
 void ec25EnviarComandoAT(uint8_t comando){
-	printf("%s\r\n", ec25_comandos_at[comando]);	//Envia comando AT indicado
+	char comando_at[EC25_BYTES_EN_BUFFER];
+	sprintf(comando_at,"%s\r\n", ec25_comandos_at[comando]);	//Prepara en buffercomandoa enviar al modem
+	uart0ImprimirMensaje((uint8_t *)(&comando_at[0]),strlen(comando_at));	//Envia comando AT indicado
 }
 //------------------------------------
 status_t ec25ProcesarRespuestaAT(uint8_t comando){
@@ -123,8 +126,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 		puntero_ok = (uint8_t*) (strstr((char*) (&ec25_buffer_rx[0]),(char*) (ec25_repuestas_at[kAT])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 
@@ -135,8 +140,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kATI])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -146,8 +153,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_CPIN])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -157,8 +166,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_CREG])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -168,8 +179,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_CMGF_1])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -180,8 +193,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_CMGS])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -192,8 +207,10 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 				(char*) (ec25_repuestas_at[kAT_TEXT_MSG_END])));
 
 		if(puntero_ok!=0x00){
+			printf("OK\r\n");
 			resultado_procesamiento=kStatus_Success;
 		}else{
+			printf("ERROR\r\n");
 			resultado_procesamiento=kStatus_Fail;
 		}
 		break;
@@ -214,16 +231,20 @@ status_t ec25ProcesarRespuestaAT(uint8_t comando){
 			for(i=0;i<sizeof(string_data);i++){
 				string_data[i]=0;
 			}
+
 			memcpy(&string_data[0],puntero_ok+5, 3);	//copia los bytes que corresponden al RSSI (3 digitos)
-			rssi=(int8_t)atoi(&string_data[0]);//convierte string a entero
+			rssi=(int8_t)atoi(&string_data[0]);	//convierte string a entero
 
 			if((rssi>EC25_RSSI_MINIMO_ACEPTADO)&&(rssi!=99)){
 				resultado_procesamiento=kStatus_Success;
+				printf("OK\r\n");
 			}else{
 				resultado_procesamiento=kStatus_OutOfRange;
+				printf("FUERA DE RANGO\r\n");
 			}
 		}else{
 			resultado_procesamiento=kStatus_Fail;
+			printf("ERROR\r\n");
 		}
 	break;
 
@@ -257,7 +278,7 @@ status_t ec25EnviarMensajeDeTexto(uint8_t *mensaje, uint8_t size_mensaje ){
 uint8_t ec25Polling(void){
 	status_t resultado;
 	uint8_t nuevo_byte_uart;
-	uint8_t *puntero_ok=0;	//variable temporal que será usada para buscar respuesta
+
 	switch (ec25_fsm.actual) {
 	case kFSM_INICIO:
 		//En este estado no hace nada y está a la espera de iniciar una nueva orden
@@ -276,6 +297,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_AT:
+		printf("Enviando AT:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT);	//Envia comando AT
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -284,6 +306,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_ATI:
+		printf("Enviando ATI:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kATI);	//Envia comando AT
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -292,6 +315,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_CPIN:
+		printf("Enviando CPIN:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CPIN);	//Envia comando AT+CPIN?
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -300,6 +324,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_CSQ:
+		printf("Enviando CSQ:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CSQ);	//Envia comando AT+CSQ
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -308,6 +333,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_CREG:
+		printf("Enviando CREG:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CREG);	//Envia comando AT+CREG?
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -316,6 +342,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_CMGF:
+		printf("Enviando CMGF:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CMGF_1);	//Envia comando AT+CMGF=1
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -324,6 +351,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_CMGS:
+		printf("Enviando CMGS:");
 		ec25BorrarBufferRX();	//limpia buffer para recibir datos de quectel
 		ec25EnviarComandoAT(kAT_CMGS);	//Envia comando AT+CMGS="3003564960"
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
@@ -332,6 +360,7 @@ uint8_t ec25Polling(void){
 		break;
 
 	case kFSM_ENVIANDO_MENSAJE_TXT:
+		printf("Enviando TXT:");
 		printf("%s\r\n%c", ec25_buffer_tx,0x1A);	//Envia mensaje de texto incluido  CTRL+Z (0x1A)
 		ec25_fsm.anterior = ec25_fsm.actual;		//almacena el estado actual
 		ec25_fsm.actual = kFSM_ESPERANDO_RESPUESTA;	//avanza a esperar respuesta del modem
