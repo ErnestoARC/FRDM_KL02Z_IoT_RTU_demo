@@ -30,7 +30,7 @@ board: FRDM-KL02Z
  * END ****************************************************************************************************************/
 void BOARD_InitBootPins(void)
 {
-    BOARD_InitPins();
+    UART_InitPins();
     LED_InitPins();
     I2C_InitPins();
     MMA8451_InitPins();
@@ -40,7 +40,7 @@ void BOARD_InitBootPins(void)
 /* clang-format off */
 /*
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-BOARD_InitPins:
+UART_InitPins:
 - options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
 - pin_list:
   - {pin_num: '17', peripheral: UART0, signal: TX, pin_signal: ADC0_SE5/CMP0_IN3/PTB1/IRQ_6/UART0_TX/UART0_RX}
@@ -51,20 +51,20 @@ BOARD_InitPins:
 
 /* FUNCTION ************************************************************************************************************
  *
- * Function Name : BOARD_InitPins
+ * Function Name : UART_InitPins
  * Description   : Configures pin routing and optionally pin electrical features.
  *
  * END ****************************************************************************************************************/
-void BOARD_InitPins(void)
+void UART_InitPins(void)
 {
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
     /* PORTB1 (pin 17) is configured as UART0_TX */
-    PORT_SetPinMux(BOARD_INITPINS_DEBUG_UART0_TX_PORT, BOARD_INITPINS_DEBUG_UART0_TX_PIN, kPORT_MuxAlt2);
+    PORT_SetPinMux(UART_INITPINS_DEBUG_UART0_TX_PORT, UART_INITPINS_DEBUG_UART0_TX_PIN, kPORT_MuxAlt2);
 
     /* PORTB2 (pin 18) is configured as UART0_RX */
-    PORT_SetPinMux(BOARD_INITPINS_DEBUG_UART0_RX_PORT, BOARD_INITPINS_DEBUG_UART0_RX_PIN, kPORT_MuxAlt2);
+    PORT_SetPinMux(UART_INITPINS_DEBUG_UART0_RX_PORT, UART_INITPINS_DEBUG_UART0_RX_PIN, kPORT_MuxAlt2);
 
     SIM->SOPT5 = ((SIM->SOPT5 &
                    /* Mask bits to zero which are setting */

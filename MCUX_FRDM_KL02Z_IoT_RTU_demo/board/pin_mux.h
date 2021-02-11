@@ -32,25 +32,25 @@ void BOARD_InitBootPins(void);
   @{ */
 
 /* Symbols to be used with PORT driver */
-#define BOARD_INITPINS_DEBUG_UART0_TX_PORT PORTB               /*!<@brief PORT peripheral base pointer */
-#define BOARD_INITPINS_DEBUG_UART0_TX_PIN 1U                   /*!<@brief PORT pin number */
-#define BOARD_INITPINS_DEBUG_UART0_TX_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
-                                                               /* @} */
+#define UART_INITPINS_DEBUG_UART0_TX_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define UART_INITPINS_DEBUG_UART0_TX_PIN 1U                   /*!<@brief PORT pin number */
+#define UART_INITPINS_DEBUG_UART0_TX_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
+                                                              /* @} */
 
 /*! @name PORTB2 (number 18), J8[1]/ADC0_SE4/UART0_RX/UART0_TX
   @{ */
 
 /* Symbols to be used with PORT driver */
-#define BOARD_INITPINS_DEBUG_UART0_RX_PORT PORTB               /*!<@brief PORT peripheral base pointer */
-#define BOARD_INITPINS_DEBUG_UART0_RX_PIN 2U                   /*!<@brief PORT pin number */
-#define BOARD_INITPINS_DEBUG_UART0_RX_PIN_MASK (1U << 2U)      /*!<@brief PORT pin mask */
-                                                               /* @} */
+#define UART_INITPINS_DEBUG_UART0_RX_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define UART_INITPINS_DEBUG_UART0_RX_PIN 2U                   /*!<@brief PORT pin number */
+#define UART_INITPINS_DEBUG_UART0_RX_PIN_MASK (1U << 2U)      /*!<@brief PORT pin mask */
+                                                              /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
  */
-void BOARD_InitPins(void);
+void UART_InitPins(void);
 
 /*! @name PORTB10 (number 13), J7[1]/LEDRGB_BLUE/ADC0_SE9
   @{ */
