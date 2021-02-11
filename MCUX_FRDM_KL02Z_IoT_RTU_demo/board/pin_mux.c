@@ -34,6 +34,7 @@ void BOARD_InitBootPins(void)
     LED_InitPins();
     I2C_InitPins();
     MMA8451_InitPins();
+    ADC_InitPins();
 }
 
 /* clang-format off */
@@ -200,6 +201,32 @@ void MMA8451_InitPins(void)
                                            kPORT_MuxAsGpio};
     /* PORTA10 (pin 21) is configured as PTA10 */
     PORT_SetPinConfig(MMA8451_INITPINS_ACCEL_IRQ_8_PORT, MMA8451_INITPINS_ACCEL_IRQ_8_PIN, &ACCEL_IRQ_8);
+}
+
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+ADC_InitPins:
+- options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
+- pin_list:
+  - {pin_num: '14', peripheral: ADC0, signal: 'SE, 11', pin_signal: ADC0_SE8/PTB11/TPM0_CH0}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : ADC_InitPins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+void ADC_InitPins(void)
+{
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+
+    /* PORTB11 (pin 14) is configured as ADC0_SE8 */
+    PORT_SetPinMux(PORTB, 11U, kPORT_PinDisabledOrAnalog);
 }
 /***********************************************************************************************************************
  * EOF

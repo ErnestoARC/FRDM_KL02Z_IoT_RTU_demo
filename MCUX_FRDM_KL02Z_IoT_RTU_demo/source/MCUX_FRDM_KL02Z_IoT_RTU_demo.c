@@ -29,6 +29,7 @@
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
+#include "sdk_hal_adc.h"
 
 #include "sdk_mdlw_leds.h"
 #include "sdk_pph_mma8451Q.h"
@@ -48,9 +49,9 @@
 /*******************************************************************************
  * Local vars
  ******************************************************************************/
-
 uint8_t mensaje_de_texto[]="Hola desde EC25";
-
+uint8_t ec25_detectado=0;
+uint8_t mma8451Q_detectado=0;
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
@@ -67,6 +68,7 @@ void waytTime(void) {
  */
 int main(void) {
 	uint8_t estado_actual_ec25;
+	uint32_t dato_adc;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -84,6 +86,12 @@ int main(void) {
     	return 0 ;
     }
 
+    //inicializa conversor analogo a Digital
+    //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
+    if(adcInit()!=kStatus_Success){
+    	return 0 ;
+    }
+
     //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
@@ -97,6 +105,8 @@ int main(void) {
 	//inicia el SUPERLOOP
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
+
+		adcTomarCaptura(PTB11_ADC0_SE8_CH11, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
 
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM

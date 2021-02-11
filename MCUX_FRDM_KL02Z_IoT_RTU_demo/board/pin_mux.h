@@ -144,6 +144,12 @@ void I2C_InitPins(void);
  */
 void MMA8451_InitPins(void);
 
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void ADC_InitPins(void);
+
 #if defined(__cplusplus)
 }
 #endif
