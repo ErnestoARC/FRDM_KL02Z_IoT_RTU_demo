@@ -13,8 +13,6 @@ package_id: MKL02Z32VFM4
 mcu_data: ksdk2_0
 processor_version: 8.0.1
 board: FRDM-KL02Z
-pin_labels:
-- {pin_num: '11', pin_signal: ADC0_SE11/PTB8, label: 'J10[1]/ADC0_SE11', identifier: ADC0_SE11}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -211,7 +209,7 @@ void MMA8451_InitPins(void)
 ADC_InitPins:
 - options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
 - pin_list:
-  - {pin_num: '11', peripheral: ADC0, signal: 'SE, 14', pin_signal: ADC0_SE11/PTB8}
+  - {pin_num: '14', peripheral: ADC0, signal: 'SE, 11', pin_signal: ADC0_SE8/PTB11/TPM0_CH0}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -227,8 +225,8 @@ void ADC_InitPins(void)
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
-    /* PORTB8 (pin 11) is configured as ADC0_SE11 */
-    PORT_SetPinMux(ADC_INITPINS_ADC0_SE11_PORT, ADC_INITPINS_ADC0_SE11_PIN, kPORT_PinDisabledOrAnalog);
+    /* PORTB11 (pin 14) is configured as ADC0_SE8 */
+    PORT_SetPinMux(PORTB, 11U, kPORT_PinDisabledOrAnalog);
 }
 /***********************************************************************************************************************
  * EOF
