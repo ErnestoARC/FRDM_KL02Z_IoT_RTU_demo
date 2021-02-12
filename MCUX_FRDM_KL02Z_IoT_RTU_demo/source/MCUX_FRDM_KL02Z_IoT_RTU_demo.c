@@ -96,6 +96,14 @@ int main(void) {
     }
     printf("OK\r\n");
 
+    printf("Inicializa I2C1:");
+    //inicializa puerto I2C1 y solo avanza si es exitoso el proceso
+    if(i2c1MasterInit(100000)!=kStatus_Success){	//100kbps
+    	printf("Error");
+    	return 0 ;
+    }
+    printf("OK\r\n");
+
     //inicializa conversor analogo a Digital
     //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
     if(adcInit()!=kStatus_Success){
