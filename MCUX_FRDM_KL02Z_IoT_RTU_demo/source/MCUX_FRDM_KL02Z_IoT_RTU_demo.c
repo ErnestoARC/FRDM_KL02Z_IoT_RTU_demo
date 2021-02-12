@@ -134,8 +134,8 @@ int main(void) {
     	adc_base_de_tiempo++;//incrementa base de tiempo para tomar una lectura ADC
     	if(adc_base_de_tiempo>10){	// >10 equivale aproximadamente a 2s
     		adc_base_de_tiempo=0;	//reinicia contador de tiempo
-    		adcTomarCaptura(PTB11_ADC0_SE8_CH11, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
-    		printf("ADC PTB11:%d\r\n",dato_adc);	//imprime resultado ADC
+    		adcTomarCaptura(PTB8_ADC0_SE11_CH14, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
+    		printf("ADC PTB8:%d\r\n",dato_adc);	//imprime resultado ADC
     	}
 
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
