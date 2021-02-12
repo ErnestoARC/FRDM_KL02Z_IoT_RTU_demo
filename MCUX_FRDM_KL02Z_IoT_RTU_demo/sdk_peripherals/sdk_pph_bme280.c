@@ -59,7 +59,16 @@
  	status_t status;
  	uint8_t i2c_data;
 
- 	i2c_data = 0x03;
+    /*  write 00000 101 = 0x05 to CTRL_HUM */
+ 	/*  [2-0] = 101	humidity oversampling x 16*/
+ 	i2c_data = 0x05;
+ 	status = i2c1MasterWriteByte(&i2c_data, 1, BME280_ADDRESS, BME850_REG_CTRL_HUM);
+
+    /*  write 101 101 11 = 0xB7 to CTRL_MEAS */
+ 	/*  [7-5] = 101 temperature oversampling x 16*/
+ 	/*  [4-2] = 101	pressure oversampling x 16*/
+ 	/*  [1-0] = 11 	Normal Mode*/
+ 	i2c_data = 0xB7;
  	status = i2c1MasterWriteByte(&i2c_data, 1, BME280_ADDRESS, BME850_REG_CTRL_MEAS);
 
  	if(status!=kStatus_Success)
