@@ -29,6 +29,7 @@
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
+#include "sdk_hal_i2c1.h"
 #include "sdk_hal_adc.h"
 
 #include "sdk_mdlw_leds.h"
