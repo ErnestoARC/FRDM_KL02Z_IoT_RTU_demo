@@ -35,6 +35,8 @@
 #include "sdk_mdlw_leds.h"
 #include "sdk_pph_mma8451Q.h"
 #include "sdk_pph_ec25au.h"
+#include "sdk_pph_bme280.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -50,12 +52,7 @@
 /*******************************************************************************
  * Local vars
  ******************************************************************************/
-uint8_t mensaje_de_texto[]="Hola desde EC25";
-uint8_t ec25_detectado=0;
-uint8_t mma8451Q_detectado=0;
 
-uint8_t adc_base_de_tiempo=0;
-uint8_t mma8451Q_base_de_tiempo=0;
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
@@ -66,14 +63,24 @@ void waytTime(void) {
 	} while (tiempo != 0x0000);
 }
 
-
 /*
  * @brief   Application entry point.
  */
 int main(void) {
-	uint8_t estado_actual_ec25;
-	uint32_t dato_adc;
-	mma8451_data_t	dato_accel;
+	uint8_t ec25_mensaje_de_texto[]="Hola desde EC25";
+	uint8_t ec25_estado_actual;
+	uint8_t ec25_detectado=0;
+
+	uint32_t adc_dato;
+	uint8_t adc_base_de_tiempo=0;
+
+	mma8451_data_t	mma8451Q_datos;
+	uint8_t mma8451Q_detectado=0;
+	uint8_t mma8451Q_base_de_tiempo=0;
+
+	bme280_data_t bme280_datos;
+	uint8_t bme280_detectado=0;
+	uint8_t bme280_base_de_tiempo=0;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -116,20 +123,30 @@ int main(void) {
     }
     printf("OK\r\n");
 
-
     printf("Detectando MMA8451Q:");
-    //LLamado a funcion que indeitifica acelerometro MMA8451Q
+    //LLamado a funcion que identifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	printf("OK\r\n");
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
+    	mma8451Q_detectado=1;	//activa bandera que indica (SI HAY MM8451Q)
     }
 
+    printf("Detectando BME280:");
+    //LLamado a funcion que identifica sensor BME280
+    if (bme280WhoAmI() == kStatus_Success){
+    	printf("OK\r\n");
+    	(void)bme280Init();	//inicializa sensor bme280
+    	bme280_detectado=1;	//activa bandera que indica (SI HAY BME280)
+    }
+
+
+    //Inicializa todas las funciones necesarias para trabajar con el modem EC25
     printf("Inicializa modem EC25\r\n");
-    //inicializa todas las funciones necesarias para trabajar con el modem EC25
     ec25Inicializacion();
 
+    //Configura FSM de modem para enviar mensaje de texto
     printf("Enviando mensaje de texto por modem EC25\r\n");
-    ec25EnviarMensajeDeTexto(&mensaje_de_texto[0], sizeof(mensaje_de_texto));
+    ec25EnviarMensajeDeTexto(&ec25_mensaje_de_texto[0], sizeof(ec25_mensaje_de_texto));
 
 	//Ciclo infinito encendiendo y apagando led verde
 	//inicia SUPERLOOP
@@ -139,25 +156,45 @@ int main(void) {
     	adc_base_de_tiempo++;//incrementa base de tiempo para tomar una lectura ADC
     	if(adc_base_de_tiempo>10){	// >10 equivale aproximadamente a 2s
     		adc_base_de_tiempo=0;	//reinicia contador de tiempo
-    		adcTomarCaptura(PTB8_ADC0_SE11_CH14, &dato_adc);	//inicia lectura por ADC y guarda en variable dato_adc
-    		printf("ADC PTB8:%d\r\n",dato_adc);	//imprime resultado ADC
+    		adcTomarCaptura(PTB8_ADC0_SE11_CH14, &adc_dato);	//inicia lectura por ADC y guarda en variable adc_dato
+    		printf("ADC ->");
+    		printf("PTB8:%d ",adc_dato);	//imprime resultado ADC
+    		printf("\r\n");	//Imprime cambio de linea
     	}
 
-    	mma8451Q_base_de_tiempo++; //incrementa base de tiempo para tomar dato acelerometro
-    	if(mma8451Q_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
-    		mma8451Q_base_de_tiempo=0;	//reinicia contador de tiempo
-    		if(mma8451QReadAccel(&dato_accel)==kStatus_Success){	//toma lectura de ejes X,Y,Z
-    			printf("Accel_X:%d ",dato_accel.x_value);	//imprime aceleración X
-    			printf("Accel_Y:%d ",dato_accel.y_value);	//imprime aceleración Y
-    			printf("Accel_Z:%d ",dato_accel.z_value);	//imprime aceleración Z
-    			printf("\r\n");	//Imprime cambio de linea
+    	if(mma8451Q_detectado==1){	//Solo hace esto si preciamente fue detectado el acelerometro con el mma8451QWhoAmI();
+        	mma8451Q_base_de_tiempo++; //incrementa base de tiempo para tomar dato acelerometro
+        	if(mma8451Q_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
+        		mma8451Q_base_de_tiempo=0;	//reinicia contador de tiempo
+        		if(mma8451QReadAccel(&mma8451Q_datos)==kStatus_Success){	//toma lectura de ejes X,Y,Z
+        			printf("MMA8451Q ->");
+        			printf("Accel_X:%d ",mma8451Q_datos.x_value);	//imprime aceleración X
+        			printf("Accel_Y:%d ",mma8451Q_datos.y_value);	//imprime aceleración Y
+        			printf("Accel_Z:%d ",mma8451Q_datos.z_value);	//imprime aceleración Z
+        			printf("\r\n");	//Imprime cambio de linea
+        		}
+        	}
+    	}
+
+    	if(bme280_detectado==1){
+    		bme280_base_de_tiempo++;	//incrementa base de tiempo para tomar dato bme280
+    		if(bme280_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
+    			bme280_base_de_tiempo=0; //reinicia contador de tiempo
+    			if(bme280ReadData(&bme280_datos)==kStatus_Success){	//toma lectura humedad, presion, temperatura
+        			printf("BME280 ->");
+    				printf("temperatura:%d ",bme280_datos.temperatura);	//imprime temperatura sin procesar
+        			printf("humedad:%d ",bme280_datos.humedad);	//imprime humedad sin procesar
+        			printf("presion:%d ",bme280_datos.presion);	//imprime presion sin procesar
+        			printf("\r\n");	//Imprime cambio de linea
+    			}
     		}
     	}
 
-		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
+
+    	ec25_estado_actual = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
 
-		switch(estado_actual_ec25){
+		switch(ec25_estado_actual){
     	case kFSM_RESULTADO_ERROR:
     		toggleLedRojo();
     		apagarLedVerde();
