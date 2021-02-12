@@ -74,16 +74,16 @@ status_t bme280ReadData(bme280_data_t *data) {
 
 	status = i2c1MasterReadByte(&i2c_data[0], 8, BME280_ADDRESS, BME850_REG_PRESS_MSB);
 	if (status == kStatus_Success) {
-		data->presion = uint32_t(i2c_data[0] << 16);
-		data->presion |= uint32_t(i2c_data[1] << 8);
-		data->presion |= uint32_t(i2c_data[2]);
+		data->presion = (uint32_t)(i2c_data[0] << 16);
+		data->presion |= (uint32_t)(i2c_data[1] << 8);
+		data->presion |= (uint32_t)(i2c_data[2]);
 
-		data->temperatura = uint32_t(i2c_data[3] << 16);
-		data->temperatura |= uint32_t(i2c_data[4] << 8);
-		data->temperatura |= uint32_t(i2c_data[5]);
+		data->temperatura = (uint32_t)(i2c_data[3] << 16);
+		data->temperatura |= (uint32_t)(i2c_data[4] << 8);
+		data->temperatura |= (uint32_t)(i2c_data[5]);
 
-		data->humedad |= uint32_t(i2c_data[6] << 8);
-		data->humedad |= uint32_t(i2c_data[7]);
+		data->humedad |= (uint32_t)(i2c_data[6] << 8);
+		data->humedad |= (uint32_t)(i2c_data[7]);
 
 		return (kStatus_Success);
 	}else{
