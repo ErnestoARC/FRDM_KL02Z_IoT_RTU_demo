@@ -222,7 +222,7 @@ void MMA8451_InitPins(void)
 ADC_InitPins:
 - options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
 - pin_list:
-  - {pin_num: '14', peripheral: ADC0, signal: 'SE, 11', pin_signal: ADC0_SE8/PTB11/TPM0_CH0}
+  - {pin_num: '11', peripheral: ADC0, signal: 'SE, 14', pin_signal: ADC0_SE11/PTB8}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -238,8 +238,8 @@ void ADC_InitPins(void)
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
-    /* PORTB11 (pin 14) is configured as ADC0_SE8 */
-    PORT_SetPinMux(PORTB, 11U, kPORT_PinDisabledOrAnalog);
+    /* PORTB8 (pin 11) is configured as ADC0_SE11 */
+    PORT_SetPinMux(PORTB, 8U, kPORT_PinDisabledOrAnalog);
 }
 /***********************************************************************************************************************
  * EOF

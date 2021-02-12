@@ -199,7 +199,7 @@
                   </dependency>
                </dependencies>
                <pins>
-                  <pin peripheral="ADC0" signal="SE, 11" pin_num="14" pin_signal="ADC0_SE8/PTB11/TPM0_CH0"/>
+                  <pin peripheral="ADC0" signal="SE, 14" pin_num="11" pin_signal="ADC0_SE11/PTB8"/>
                </pins>
             </function>
          </functions_list>
