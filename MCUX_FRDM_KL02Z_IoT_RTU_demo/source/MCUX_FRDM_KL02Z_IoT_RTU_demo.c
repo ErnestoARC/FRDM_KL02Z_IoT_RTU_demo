@@ -55,6 +55,7 @@ uint8_t ec25_detectado=0;
 uint8_t mma8451Q_detectado=0;
 
 uint8_t adc_base_de_tiempo=0;
+uint8_t mma8451Q_base_de_tiempo=0;
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
@@ -72,6 +73,7 @@ void waytTime(void) {
 int main(void) {
 	uint8_t estado_actual_ec25;
 	uint32_t dato_adc;
+	mma8451_data_t	dato_accel;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -105,14 +107,17 @@ int main(void) {
     }
     printf("OK\r\n");
 
-    //inicializa conversor analogo a Digital
+    //Inicializa conversor analogo a digital
     //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
+    printf("Inicializa ADC:");
     if(adcInit()!=kStatus_Success){
+    	printf("Error");
     	return 0 ;
     }
+    printf("OK\r\n");
+
 
     printf("Detectando MMA8451Q:");
-
     //LLamado a funcion que indeitifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
     	printf("OK\r\n");
@@ -127,7 +132,7 @@ int main(void) {
     ec25EnviarMensajeDeTexto(&mensaje_de_texto[0], sizeof(mensaje_de_texto));
 
 	//Ciclo infinito encendiendo y apagando led verde
-	//inicia el SUPERLOOP
+	//inicia SUPERLOOP
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
 
@@ -138,10 +143,21 @@ int main(void) {
     		printf("ADC PTB8:%d\r\n",dato_adc);	//imprime resultado ADC
     	}
 
+    	mma8451Q_base_de_tiempo++; //incrementa base de tiempo para tomar dato acelerometro
+    	if(mma8451Q_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
+    		mma8451Q_base_de_tiempo=0;	//reinicia contador de tiempo
+    		if(mma8451QReadAccel(&dato_accel)==kStatus_Success){	//toma lectura de ejes X,Y,Z
+    			printf("Accel_X:%d ",dato_accel.x_value);	//imprime aceleración X
+    			printf("Accel_Y:%d ",dato_accel.y_value);	//imprime aceleración Y
+    			printf("Accel_Z:%d ",dato_accel.z_value);	//imprime aceleración Z
+    			printf("\r\n");	//Imprime cambio de linea
+    		}
+    	}
+
 		estado_actual_ec25 = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
 
-    	switch(estado_actual_ec25){
+		switch(estado_actual_ec25){
     	case kFSM_RESULTADO_ERROR:
     		toggleLedRojo();
     		apagarLedVerde();
