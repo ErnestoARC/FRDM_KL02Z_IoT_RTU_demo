@@ -92,28 +92,29 @@ void BOARD_InitBootClocks(void)
 name: BOARD_BootClockRUN
 called_from_default_init: true
 outputs:
-- {id: Bus_clock.outFreq, value: 23.986176 MHz}
-- {id: Core_clock.outFreq, value: 47.972352 MHz}
+- {id: Bus_clock.outFreq, value: 4 MHz}
+- {id: Core_clock.outFreq, value: 4 MHz}
 - {id: ERCLK32K.outFreq, value: 32.768 kHz}
-- {id: Flash_clock.outFreq, value: 23.986176 MHz}
+- {id: Flash_clock.outFreq, value: 4 MHz}
 - {id: LPO_clock.outFreq, value: 1 kHz}
 - {id: MCGFLLCLK.outFreq, value: 47.972352 MHz}
-- {id: MCGIRCLK.outFreq, value: 32.768 kHz}
+- {id: MCGIRCLK.outFreq, value: 4 MHz}
 - {id: OSCERCLK.outFreq, value: 32.768 kHz}
-- {id: System_clock.outFreq, value: 47.972352 MHz}
+- {id: System_clock.outFreq, value: 4 MHz}
 settings:
-- {id: MCGMode, value: FEE}
+- {id: MCGMode, value: FBI}
+- {id: MCG.CLKS.sel, value: MCG.IRCS}
 - {id: MCG.FCRDIV.scale, value: '1', locked: true}
 - {id: MCG.FLL_mul.scale, value: '1464', locked: true}
 - {id: MCG.FRDIV.scale, value: '1', locked: true}
-- {id: MCG.IREFS.sel, value: MCG.FRDIV}
+- {id: MCG.IRCS.sel, value: MCG.FCRDIV}
 - {id: MCG_C1_IRCLKEN_CFG, value: Enabled}
 - {id: MCG_C2_OSC_MODE_CFG, value: ModeOscLowPower}
 - {id: OSC0_CR_ERCLKEN_CFG, value: Enabled}
 - {id: OSC_CR_ERCLKEN_CFG, value: Enabled}
 - {id: SIM.COPCLKSEL.sel, value: SIM.OUTDIV4}
 - {id: SIM.OUTDIV1.scale, value: '1', locked: true}
-- {id: SIM.OUTDIV4.scale, value: '2', locked: true}
+- {id: SIM.OUTDIV4.scale, value: '1', locked: true}
 - {id: SIM.TPMSRCSEL.sel, value: MCG.MCGFLLCLK}
 - {id: SIM.UART0SRCSEL.sel, value: MCG.MCGFLLCLK}
 sources:
@@ -126,9 +127,9 @@ sources:
  ******************************************************************************/
 const mcg_config_t mcgConfig_BOARD_BootClockRUN =
     {
-        .mcgMode = kMCG_ModeFEE,                  /* FEE - FLL Engaged External */
+        .mcgMode = kMCG_ModeFBI,                  /* FBI - FLL Bypassed Internal */
         .irclkEnableMode = kMCG_IrclkEnable,      /* MCGIRCLK enabled, MCGIRCLK disabled in STOP mode */
-        .ircs = kMCG_IrcSlow,                     /* Slow internal reference clock selected */
+        .ircs = kMCG_IrcFast,                     /* Fast internal reference clock selected */
         .fcrdiv = 0x0U,                           /* Fast IRC divider: divided by 1 */
         .frdiv = 0x0U,                            /* FLL reference clock divider: divided by 1 */
         .drs = kMCG_DrsMid,                       /* Mid frequency range */
@@ -136,7 +137,7 @@ const mcg_config_t mcgConfig_BOARD_BootClockRUN =
     };
 const sim_clock_config_t simConfig_BOARD_BootClockRUN =
     {
-        .clkdiv1 = 0x10000U,                      /* SIM_CLKDIV1 - OUTDIV1: /1, OUTDIV4: /2 */
+        .clkdiv1 = 0x0U,                          /* SIM_CLKDIV1 - OUTDIV1: /1, OUTDIV4: /1 */
     };
 const osc_config_t oscConfig_BOARD_BootClockRUN =
     {
@@ -159,16 +160,18 @@ void BOARD_BootClockRUN(void)
     /* Initializes OSC0 according to board configuration. */
     CLOCK_InitOsc0(&oscConfig_BOARD_BootClockRUN);
     CLOCK_SetXtal0Freq(oscConfig_BOARD_BootClockRUN.freq);
-    /* Set MCG to FEE mode. */
-    CLOCK_BootToFeeMode(kMCG_OscselOsc,
-                        mcgConfig_BOARD_BootClockRUN.frdiv,
-                        mcgConfig_BOARD_BootClockRUN.dmx32,
-                        mcgConfig_BOARD_BootClockRUN.drs,
-                        CLOCK_CONFIG_FllStableDelay);
-    /* Configure the Internal Reference clock (MCGIRCLK). */
+    /* Set MCG to FBI mode. */
     CLOCK_SetInternalRefClkConfig(mcgConfig_BOARD_BootClockRUN.irclkEnableMode,
-                                  mcgConfig_BOARD_BootClockRUN.ircs, 
+                                  mcgConfig_BOARD_BootClockRUN.ircs,
                                   mcgConfig_BOARD_BootClockRUN.fcrdiv);
+#if FSL_CLOCK_DRIVER_VERSION >= MAKE_VERSION(2, 2, 0)
+    CLOCK_SetFbiMode(mcgConfig_BOARD_BootClockRUN.dmx32,
+                     mcgConfig_BOARD_BootClockRUN.drs,
+                     CLOCK_CONFIG_FllStableDelay);
+#else
+    CLOCK_SetFbiMode(mcgConfig_BOARD_BootClockRUN.drs,
+                     CLOCK_CONFIG_FllStableDelay);
+#endif
     /* Set the clock configuration in SIM module. */
     CLOCK_SetSimConfig(&simConfig_BOARD_BootClockRUN);
     /* Set SystemCoreClock variable. */
