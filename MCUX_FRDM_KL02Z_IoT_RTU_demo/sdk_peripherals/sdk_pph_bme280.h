@@ -51,6 +51,12 @@ typedef struct _bme280_data{
 	uint32_t humedad;
 	uint32_t presion;
 }bme280_data_t;
+
+
+//Define interconexión entre capa de firmware Peripherals (PPH) y HardwareAbstractionLayer (HAl)
+#define bme280WriteByte	i2c1MasterWriteByte
+#define bme280ReadByte	i2c1MasterReadByte
+
 /*******************************************************************************
  * External vars
  ******************************************************************************/
