@@ -40,6 +40,13 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+#define HABILITAR_MODEM_EC25		1
+#define HABILITAR_SENSOR_BME280		1
+#define HABILITAR_SENSOR_MMA8451Q	1
+#define HABILITAR_ENTRADA_ADC_PTB8	1
+
+
+
 
 /*******************************************************************************
  * Private Prototypes
@@ -114,6 +121,7 @@ int main(void) {
     }
     printf("OK\r\n");
 
+#if HABILITAR_ENTRADA_ADC_PTB8
     //Inicializa conversor analogo a digital
     //Se debe usar  PinsTools para configurar los pines que van a ser analogicos
     printf("Inicializa ADC:");
@@ -122,7 +130,9 @@ int main(void) {
     	return 0 ;
     }
     printf("OK\r\n");
+#endif
 
+#if HABILITAR_SENSOR_MMA8451Q
     printf("Detectando MMA8451Q:");
     //LLamado a funcion que identifica acelerometro MMA8451Q
     if (mma8451QWhoAmI() == kStatus_Success){
@@ -130,7 +140,9 @@ int main(void) {
     	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
     	mma8451Q_detectado=1;	//activa bandera que indica (SI HAY MM8451Q)
     }
+#endif
 
+#if HABILITAR_SENSOR_BME280
     printf("Detectando BME280:");
     //LLamado a funcion que identifica sensor BME280
     if (bme280WhoAmI() == kStatus_Success){
@@ -138,8 +150,9 @@ int main(void) {
     	(void)bme280Init();	//inicializa sensor bme280
     	bme280_detectado=1;	//activa bandera que indica (SI HAY BME280)
     }
+#endif
 
-
+#if HABILITAR_MODEM_EC25
     //Inicializa todas las funciones necesarias para trabajar con el modem EC25
     printf("Inicializa modem EC25\r\n");
     ec25Inicializacion();
@@ -147,12 +160,14 @@ int main(void) {
     //Configura FSM de modem para enviar mensaje de texto
     printf("Enviando mensaje de texto por modem EC25\r\n");
     ec25EnviarMensajeDeTexto(&ec25_mensaje_de_texto[0], sizeof(ec25_mensaje_de_texto));
+#endif
 
 	//Ciclo infinito encendiendo y apagando led verde
 	//inicia SUPERLOOP
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
 
+#if HABILITAR_ENTRADA_ADC_PTB8
     	adc_base_de_tiempo++;//incrementa base de tiempo para tomar una lectura ADC
     	if(adc_base_de_tiempo>10){	// >10 equivale aproximadamente a 2s
     		adc_base_de_tiempo=0;	//reinicia contador de tiempo
@@ -161,7 +176,9 @@ int main(void) {
     		printf("PTB8:%d ",adc_dato);	//imprime resultado ADC
     		printf("\r\n");	//Imprime cambio de linea
     	}
+#endif
 
+#if HABILITAR_SENSOR_MMA8451Q
     	if(mma8451Q_detectado==1){	//Solo hace esto si preciamente fue detectado el acelerometro con el mma8451QWhoAmI();
         	mma8451Q_base_de_tiempo++; //incrementa base de tiempo para tomar dato acelerometro
         	if(mma8451Q_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
@@ -175,7 +192,9 @@ int main(void) {
         		}
         	}
     	}
+#endif
 
+#if HABILITAR_SENSOR_BME280
     	if(bme280_detectado==1){
     		bme280_base_de_tiempo++;	//incrementa base de tiempo para tomar dato bme280
     		if(bme280_base_de_tiempo>10){	//	>10 equivale aproximadamente a 2s
@@ -189,12 +208,13 @@ int main(void) {
     			}
     		}
     	}
+#endif
 
-
+#if HABILITAR_MODEM_EC25
     	ec25_estado_actual = ec25Polling();	//actualiza maquina de estados encargada de avanzar en el proceso interno del MODEM
 											//retorna el estado actual de la FSM
 
-		switch(ec25_estado_actual){
+		switch(ec25_estado_actual){			//controla color de los LEDs dependiendo de estado modemEC25
     	case kFSM_RESULTADO_ERROR:
     		toggleLedRojo();
     		apagarLedVerde();
@@ -220,6 +240,6 @@ int main(void) {
     		break;
     	}
     }
-
+#endif
     return 0 ;
 }
