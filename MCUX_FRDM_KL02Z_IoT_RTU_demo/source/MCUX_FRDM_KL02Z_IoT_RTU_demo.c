@@ -64,7 +64,7 @@
  * Private Source Code
  ******************************************************************************/
 void waytTime(void) {
-	uint32_t tiempo = 0xFFFF;
+	uint32_t tiempo = 0x1FFFF;
 	do {
 		tiempo--;
 	} while (tiempo != 0x0000);
@@ -186,7 +186,7 @@ int main(void) {
     		adc_base_de_tiempo=0;	//reinicia contador de tiempo
     		adcTomarCaptura(PTB8_ADC0_SE11_CH14, &adc_dato);	//inicia lectura por ADC y guarda en variable adc_dato
     		printf("ADC ->");
-    		printf("PTB8:%d ",adc_dato);	//imprime resultado ADC
+    		printf("PTB8:0x%X ",adc_dato);	//imprime resultado ADC
     		printf("\r\n");	//Imprime cambio de linea
     	}
 #endif
@@ -198,9 +198,9 @@ int main(void) {
         		mma8451Q_base_de_tiempo=0;	//reinicia contador de tiempo
         		if(mma8451QReadAccel(&mma8451Q_datos)==kStatus_Success){	//toma lectura de ejes X,Y,Z
         			printf("MMA8451Q ->");
-        			printf("Accel_X:%d ",mma8451Q_datos.x_value);	//imprime aceleración X
-        			printf("Accel_Y:%d ",mma8451Q_datos.y_value);	//imprime aceleración Y
-        			printf("Accel_Z:%d ",mma8451Q_datos.z_value);	//imprime aceleración Z
+        			printf("Accel_X:0x%X ",mma8451Q_datos.x_value);	//imprime aceleración X
+        			printf("Accel_Y:0x%X ",mma8451Q_datos.y_value);	//imprime aceleración Y
+        			printf("Accel_Z:0x%X ",mma8451Q_datos.z_value);	//imprime aceleración Z
         			printf("\r\n");	//Imprime cambio de linea
         		}
         	}
@@ -214,9 +214,9 @@ int main(void) {
     			bme280_base_de_tiempo=0; //reinicia contador de tiempo
     			if(bme280ReadData(&bme280_datos)==kStatus_Success){	//toma lectura humedad, presion, temperatura
         			printf("BME280 ->");
-    				printf("temperatura:%d ",bme280_datos.temperatura);	//imprime temperatura sin procesar
-        			printf("humedad:%d ",bme280_datos.humedad);	//imprime humedad sin procesar
-        			printf("presion:%d ",bme280_datos.presion);	//imprime presion sin procesar
+    				printf("temperatura:0x%X ",bme280_datos.temperatura);	//imprime temperatura sin procesar
+        			printf("humedad:0x%X ",bme280_datos.humedad);	//imprime humedad sin procesar
+        			printf("presion:0x%X ",bme280_datos.presion);	//imprime presion sin procesar
         			printf("\r\n");	//Imprime cambio de linea
     			}
     		}
@@ -230,10 +230,11 @@ int main(void) {
 				sht3x_base_de_tiempo=0; //reinicia contador de tiempo
 	    		if (sht3xReadData(&sht3x_datos) == kStatus_Success) {//toma lectura humedad, temperatura
 	    			printf("SHT3X ->");
-	    			printf("temperatura:%d ",sht3x_datos.temperatura);	//imprime temperatura sin procesar
-	    			printf("CRC8_t:%d ",sht3x_datos.crc_temperatura);	//imprime CRC8 de temperatura
-        			printf("humedad:%d ",sht3x_datos.humedad);	//imprime humedad sin procesar
-        			printf("CRC8_h:%d ",sht3x_datos.crc_humedad);	//imprime CRC8 de temperatura
+	    			printf("temperatura:0x%X ",sht3x_datos.temperatura);	//imprime temperatura sin procesar
+	    			printf("CRC8_t:0x%X ",sht3x_datos.crc_temperatura);	//imprime CRC8 de temperatura
+        			printf("humedad:0x%X ",sht3x_datos.humedad);	//imprime humedad sin procesar
+        			printf("CRC8_h:0x%X ",sht3x_datos.crc_humedad);	//imprime CRC8 de temperatura
+        			printf("\r\n");	//Imprime cambio de linea
 	    		}
 			}
     	}
