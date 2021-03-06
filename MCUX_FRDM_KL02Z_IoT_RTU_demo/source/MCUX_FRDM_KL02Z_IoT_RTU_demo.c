@@ -290,7 +290,7 @@ int main(void) {
     		toggleLedAzul();
     		break;
     	}
-    }
 #endif
+    }
     return 0 ;
 }
