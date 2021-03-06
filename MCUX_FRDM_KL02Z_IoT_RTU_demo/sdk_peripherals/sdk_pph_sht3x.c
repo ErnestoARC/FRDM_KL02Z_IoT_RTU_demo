@@ -39,8 +39,8 @@
  	uint8_t i2c_data;
  	uint8_t i2c_addr;
 
- 	i2c_addr =  (uint8_t)(command_to_send>>8);
- 	i2c_data = (uint8_t) (command_to_send);
+ 	i2c_addr =  (uint8_t)(command_to_send>>8);	//toma MSB del comando entregado para ser enviado
+ 	i2c_data = (uint8_t) (command_to_send);		//toma LSB del comando entregado para ser enviado
 
  	status = sht3xWriteByte(&i2c_data, 1, SHT3X_ADDRESS, i2c_addr, 1);
 
