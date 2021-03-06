@@ -26,11 +26,13 @@
 #include "MKL02Z4.h"
 #include "fsl_debug_console.h"
 
+
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
 #include "sdk_hal_i2c1.h"
 #include "sdk_hal_adc.h"
+#include "sdk_hal_lptmr0.h"
 
 #include "sdk_mdlw_leds.h"
 #include "sdk_pph_mma8451Q.h"
@@ -46,28 +48,39 @@
 #define HABILITAR_ENTRADA_ADC_PTB8	1
 #define HABILITAR_SENSOR_SHT3X		1
 
+#define HABILITAR_TLPTMR0			1
+
 
 
 /*******************************************************************************
  * Private Prototypes
  ******************************************************************************/
 
+
 /*******************************************************************************
  * External vars
  ******************************************************************************/
+
 
 /*******************************************************************************
  * Local vars
  ******************************************************************************/
 
+
 /*******************************************************************************
  * Private Source Code
  ******************************************************************************/
 void waytTime(void) {
-	uint32_t tiempo = 0x1FFFF;
-	do {
-		tiempo--;
-	} while (tiempo != 0x0000);
+//	uint32_t tiempo = 0x1FFFF;
+//	do {
+//		tiempo--;
+//	} while (tiempo != 0x0000);
+
+
+	//espera a que hayan ocurrido por lo menos 100ms interrupciones
+	while (lptmr0GetTimeValue() < 100){
+	}
+	lptmr0SetTimeValue(0);		//Reset de variable contador de interrupciones
 }
 
 /*
@@ -175,10 +188,18 @@ int main(void) {
     ec25EnviarMensajeDeTexto(&ec25_mensaje_de_texto[0], sizeof(ec25_mensaje_de_texto));
 #endif
 
+#if HABILITAR_TLPTMR0
+    //Inicializa todas las funciones necesarias para trabajar con el modem EC25
+    printf("Inicializa low power timer 0\r\n");
+
+    lptmr0Init();
+#endif
+
 	//Ciclo infinito encendiendo y apagando led verde
 	//inicia SUPERLOOP
     while(1) {
     	waytTime();		//base de tiempo fija aproximadamente 200ms
+
 
 #if HABILITAR_ENTRADA_ADC_PTB8
     	adc_base_de_tiempo++;//incrementa base de tiempo para tomar una lectura ADC
