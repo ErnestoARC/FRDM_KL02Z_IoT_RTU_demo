@@ -23,9 +23,13 @@
          </generated_project_files>
          <pins_profile>
             <processor_version>8.0.1</processor_version>
+            <pin_labels>
+               <pin_label pin_num="19" pin_signal="ADC0_SE3/PTA8/I2C1_SCL" label="J10[6]/ADC0_SE3/I2C1_SCL" identifier="EXT_SCL"/>
+               <pin_label pin_num="20" pin_signal="ADC0_SE2/PTA9/I2C1_SDA" label="J10[5]/ADC0_SE2/I2C1_SDA" identifier="EXT_SDA"/>
+            </pin_labels>
          </pins_profile>
          <functions_list>
-            <function name="BOARD_InitPins">
+            <function name="UART_InitPins">
                <description>Configures pin routing and optionally pin electrical features.</description>
                <options>
                   <callFromInitBoot>true</callFromInitBoot>
@@ -33,17 +37,17 @@
                   <enableClock>true</enableClock>
                </options>
                <dependencies>
-                  <dependency resourceType="Peripheral" resourceId="UART0" description="Peripheral UART0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                  <dependency resourceType="Peripheral" resourceId="UART0" description="Peripheral UART0 is not initialized" problem_level="1" source="Pins:UART_InitPins">
                      <feature name="initialized" evaluation="equal">
                         <data>true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:UART_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="SWComponent" resourceId="platform.drivers.port" description="Pins initialization requires the PORT Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.port" description="Pins initialization requires the PORT Driver in the project." problem_level="2" source="Pins:UART_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
                      </feature>
@@ -113,6 +117,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="I2C1" description="Peripheral I2C1 is not initialized" problem_level="1" source="Pins:I2C_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:I2C_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -127,6 +136,8 @@
                <pins>
                   <pin peripheral="I2C0" signal="SCL" pin_num="23" pin_signal="PTB3/IRQ_10/I2C0_SCL/UART0_TX"/>
                   <pin peripheral="I2C0" signal="SDA" pin_num="24" pin_signal="PTB4/IRQ_11/I2C0_SDA/UART0_RX"/>
+                  <pin peripheral="I2C1" signal="SDA" pin_num="20" pin_signal="ADC0_SE2/PTA9/I2C1_SDA"/>
+                  <pin peripheral="I2C1" signal="SCL" pin_num="19" pin_signal="ADC0_SE3/PTA8/I2C1_SCL"/>
                </pins>
             </function>
             <function name="MMA8451_InitPins">
@@ -161,6 +172,34 @@
                         <pin_feature name="pull_enable" value="enable"/>
                      </pin_features>
                   </pin>
+               </pins>
+            </function>
+            <function name="ADC_InitPins">
+               <description>Configures pin routing and optionally pin electrical features.</description>
+               <options>
+                  <callFromInitBoot>true</callFromInitBoot>
+                  <coreID>core0</coreID>
+                  <enableClock>true</enableClock>
+               </options>
+               <dependencies>
+                  <dependency resourceType="Peripheral" resourceId="ADC0" description="Peripheral ADC0 is not initialized" problem_level="1" source="Pins:ADC_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:ADC_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.port" description="Pins initialization requires the PORT Driver in the project." problem_level="2" source="Pins:ADC_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+               </dependencies>
+               <pins>
+                  <pin peripheral="ADC0" signal="SE, 14" pin_num="11" pin_signal="ADC0_SE11/PTB8"/>
                </pins>
             </function>
          </functions_list>
@@ -208,29 +247,30 @@
                   <clock_source id="OSC.OSC.outFreq" value="32.768 kHz" locked="false" enabled="true"/>
                </clock_sources>
                <clock_outputs>
-                  <clock_output id="Bus_clock.outFreq" value="23.986176 MHz" locked="false" accuracy=""/>
-                  <clock_output id="Core_clock.outFreq" value="47.972352 MHz" locked="false" accuracy=""/>
+                  <clock_output id="Bus_clock.outFreq" value="4 MHz" locked="false" accuracy=""/>
+                  <clock_output id="Core_clock.outFreq" value="4 MHz" locked="false" accuracy=""/>
                   <clock_output id="ERCLK32K.outFreq" value="32.768 kHz" locked="false" accuracy=""/>
-                  <clock_output id="Flash_clock.outFreq" value="23.986176 MHz" locked="false" accuracy=""/>
+                  <clock_output id="Flash_clock.outFreq" value="4 MHz" locked="false" accuracy=""/>
                   <clock_output id="LPO_clock.outFreq" value="1 kHz" locked="false" accuracy=""/>
                   <clock_output id="MCGFLLCLK.outFreq" value="47.972352 MHz" locked="false" accuracy=""/>
-                  <clock_output id="MCGIRCLK.outFreq" value="32.768 kHz" locked="false" accuracy=""/>
+                  <clock_output id="MCGIRCLK.outFreq" value="4 MHz" locked="false" accuracy=""/>
                   <clock_output id="OSCERCLK.outFreq" value="32.768 kHz" locked="false" accuracy=""/>
-                  <clock_output id="System_clock.outFreq" value="47.972352 MHz" locked="false" accuracy=""/>
+                  <clock_output id="System_clock.outFreq" value="4 MHz" locked="false" accuracy=""/>
                </clock_outputs>
                <clock_settings>
-                  <setting id="MCGMode" value="FEE" locked="false"/>
+                  <setting id="MCGMode" value="FBI" locked="false"/>
+                  <setting id="MCG.CLKS.sel" value="MCG.IRCS" locked="false"/>
                   <setting id="MCG.FCRDIV.scale" value="1" locked="true"/>
                   <setting id="MCG.FLL_mul.scale" value="1464" locked="true"/>
                   <setting id="MCG.FRDIV.scale" value="1" locked="true"/>
-                  <setting id="MCG.IREFS.sel" value="MCG.FRDIV" locked="false"/>
+                  <setting id="MCG.IRCS.sel" value="MCG.FCRDIV" locked="false"/>
                   <setting id="MCG_C1_IRCLKEN_CFG" value="Enabled" locked="false"/>
                   <setting id="MCG_C2_OSC_MODE_CFG" value="ModeOscLowPower" locked="false"/>
                   <setting id="OSC0_CR_ERCLKEN_CFG" value="Enabled" locked="false"/>
                   <setting id="OSC_CR_ERCLKEN_CFG" value="Enabled" locked="false"/>
                   <setting id="SIM.COPCLKSEL.sel" value="SIM.OUTDIV4" locked="false"/>
                   <setting id="SIM.OUTDIV1.scale" value="1" locked="true"/>
-                  <setting id="SIM.OUTDIV4.scale" value="2" locked="true"/>
+                  <setting id="SIM.OUTDIV4.scale" value="1" locked="true"/>
                   <setting id="SIM.TPMSRCSEL.sel" value="MCG.MCGFLLCLK" locked="false"/>
                   <setting id="SIM.UART0SRCSEL.sel" value="MCG.MCGFLLCLK" locked="false"/>
                </clock_settings>

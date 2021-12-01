@@ -1,59 +1,30 @@
-/*! @file : sdk_pph_ec25au.h
+/*! @file : sdk_hal_lptmr0.h
  * @author  Ernesto Andres Rincon Cruz
  * @version 1.0.0
- * @date    23/01/2021
- * @brief   Driver para modem EC25AU
+ * @date    6/03/2021
+ * @brief   Driver para Timer de bajo consumo LPTMR0
  * @details
  *
  */
-#ifndef SDK_PPH_EC25AU_H_
-#define SDK_PPH_EC25AU_H_
+#ifndef SDK_HAL_LPTMR0_H_
+#define SDK_HAL_LPTMR0_H_
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "sdk_hal_uart0.h"
+#include "fsl_lptmr.h"
 
 /*!
- * @addtogroup PPH
+ * @addtogroup HAL
  * @{
  */
 /*!
- * @addtogroup EC25AU
+ * @addtogroup LPTMR0
  * @{
  */
 /*******************************************************************************
  * Public Definitions
  ******************************************************************************/
-enum _ec25_lista_comandos_at {
-	kAT = 0,
-	kATI,
-	kAT_CPIN,
-	kAT_CREG,
-	kAT_CMGF_1,
-	kAT_CMGS,
-	kAT_TEXT_MSG_END,
-	kAT_CSQ,
-};
 
-enum _fsm_ec25_state{
-	kFSM_INICIO=0,
-	kFSM_ENVIANDO_AT,
-	kFSM_ENVIANDO_ATI,
-	kFSM_ENVIANDO_CPIN,
-	kFSM_ENVIANDO_CREG,
-	kFSM_ENVIANDO_CMGF,
-	kFSM_ENVIANDO_CMGS,
-	kFSM_ENVIANDO_MENSAJE_TXT,
-	kFSM_ESPERANDO_RESPUESTA,
-	kFSM_RESULTADO_ERROR,
-	kFSM_RESULTADO_EXITOSO,
-	kFSM_ENVIANDO_CSQ,
-	kFSM_PROCESANDO_RESPUESTA,
-	kFSM_RESULTADO_ERROR_RSSI,
-};
-
-#define EC25_TIEMPO_MAXIMO_ESPERA	3		//Tiempo maximo que espera modem por respuesta
-#define EC25_RSSI_MINIMO_ACEPTADO	20		//RSSI minimo aceptado segun tabla de fabricante
 /*******************************************************************************
  * External vars
  ******************************************************************************/
@@ -65,11 +36,11 @@ enum _fsm_ec25_state{
 /*******************************************************************************
  * Public Prototypes
  ******************************************************************************/
-status_t ec25Inicializacion(void);
-status_t ec25EnviarMensajeDeTexto(uint8_t *mensaje, uint8_t size_mensaje );
-uint8_t ec25Polling(void);
+void lptmr0Init(void);
+uint32_t lptmr0GetTimeValue(void);
+void lptmr0SetTimeValue(uint32_t timeValue);
 
 /** @} */ // end of X group
 /** @} */ // end of X group
 
-#endif /* SDK_PPH_EC25AU_H_ */
+#endif /* SDK_HAL_LPTMR0_H_ */
